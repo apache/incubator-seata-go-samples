@@ -13,8 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE database if NOT EXISTS `seata_client` default character set utf8mb4 collate utf8mb4_unicode_ci;
-USE `seata_client`;
+CREATE database if NOT EXISTS `seata_client1` default character set utf8mb4 collate utf8mb4_unicode_ci;
+USE `seata_client1`;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS  `order_tbl` (
     PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `seata_client`.`order_tbl` (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) VALUES (1, 'NO-100001', 'C100000', 100, 10, 'init desc');
+INSERT INTO `seata_client1`.`order_tbl` (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) VALUES (1, 'NO-100001', 'C100000', 100, 10, 'init desc');
 
 DROP TABLE IF EXISTS `undo_log`;
 
