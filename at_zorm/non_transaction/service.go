@@ -31,7 +31,7 @@ func initService() {
 		Dialect:    "mysql",
 		// FuncGlobalTransaction: MyFuncGlobalTransaction,
 		//SlowSQLMillis 慢sql的时间阈值,单位毫秒.小于0是禁用SQL语句输出;等于0是只输出SQL语句,不计算执行时间;大于0是计算SQL执行时间,并且>=SlowSQLMillis值
-		SlowSQLMillis: 0,
+		SlowSQLMillis: -1,
 		//最大连接数 默认50
 		MaxOpenConns: 0,
 		//最大空闲数 默认50
@@ -39,7 +39,8 @@ func initService() {
 		//连接存活秒时间. 默认600
 		ConnMaxLifetimeSecond: 0,
 		//事务隔离级别的默认配置,默认为nil
-		DefaultTxOptions: nil,
+		DefaultTxOptions:   nil,
+		DisableTransaction: true,
 	}
 	_, err := zorm.NewDBDao(&dbConfig)
 	if err != nil {

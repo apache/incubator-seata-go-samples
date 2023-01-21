@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -60,6 +61,8 @@ func main() {
 	insertId := insertData()
 	fmt.Printf("insertId = %d\n", insertId)
 
+	//insertDuplicateData(insertId)
+
 	selectData(insertId)
 
 	updateData(insertId)
@@ -78,221 +81,131 @@ func main() {
 }
 
 func insertData() int64 {
-	var (
-		insertId int64
-		ctx      = context.Background()
-	)
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		// insert
-		var (
-			userid = userID
-			sql    = "insert into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values (?, ?, ?, ?, ?)"
-		)
-		finder := zorm.NewFinder()
-		finder = finder.Append(sql, userid, commodityCode, 100, 100, descs)
-		affected, err := zorm.UpdateFinder(ctx, finder)
-		if err != nil {
-			fmt.Printf("insert failed, err:%v\n", err)
-			return nil, err
-		}
-		fmt.Printf("insert success： %d.\n", affected)
-
-		// select
-		qfinder := zorm.NewFinder()
-		qfinder.Append("select id from order_tbl where user_id =?", userid)
-		has, err := zorm.QueryRow(ctx, qfinder, &insertId)
-		if err != nil {
-			fmt.Printf("get insert id failed, err:%v\n", err)
-			return nil, err
-		}
-		if !has {
-			fmt.Printf("get insert id empty.\n")
-			return nil, err
-		}
-		return nil, err
-	})
-	if err != nil {
-		fmt.Printf("insert id failed, err:%v\n", err)
-		panic(err)
+	order := OrderTbl{
+		UserId:        userID,
+		CommodityCode: commodityCode,
+		Count:         100,
+		Money:         100,
+		Descs:         descs,
 	}
-	return insertId
-}
-
-func selectData(id int64) {
-	var orderTbl OrderTbl
-
-	_, err := zorm.Transaction(context.Background(), func(ctx context.Context) (interface{}, error) {
-
-		finder := zorm.NewFinder()
-		finder.Append("select id, user_id, commodity_code, count, money, descs from order_tbl where id = ? ", id)
-		has, err := zorm.QueryRow(ctx, finder, &orderTbl)
-		if err != nil {
-			fmt.Printf("select return err: %v\n", err)
-			return nil, err
-		}
-		if !has {
-			fmt.Println("select return null")
-			return nil, errors.New("select return null")
-		}
-
-		return nil, err
-	})
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	fmt.Printf("select --> : %v\n", orderTbl)
-}
-
-func batchInsertData() []string {
-	var (
-		rows    int
-		userIds []string
-		ctx     = context.Background()
-	)
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-
-		orderSlice := make([]zorm.IEntityStruct, 0)
-		for i := 0; i < 5; i++ {
-			tmpCount := time.Now().UnixMilli()
-
-			var tmp OrderTbl
-			tmp.Id = int64(i)
-			tmp.UserId = fmt.Sprintf("NO-%d", tmpCount)
-			tmp.CommodityCode = fmt.Sprintf("%d", tmpCount)
-			tmp.Count = int64(i)
-			tmp.Money = 100
-			tmp.Descs = fmt.Sprintf("desc %d", tmpCount)
-
-			userIds = append(userIds, tmp.UserId)
-			orderSlice = append(orderSlice, &tmp)
-		}
-
-		var err error
-		rows, err = zorm.InsertSlice(ctx, orderSlice)
-		if err != nil {
-			fmt.Printf("%v", err)
-		}
-		return nil, err
-	})
+	rows, err := zorm.Insert(context.Background(), &order)
 	if err != nil {
 		fmt.Printf("insert failed, err:%v\n", err)
 		panic(err)
 	}
 
+	insertId := order.Id
+	if err != nil {
+		fmt.Printf("get insert id failed, err:%v\n", err)
+		panic(err)
+	}
+
+	fmt.Printf("insert success： %d.\n", rows)
+	return insertId
+}
+
+func batchInsertData() []string {
+	var userIds []string
+	sql := "insert into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values "
+	for i := 0; i < 5; i++ {
+		tmpCount := time.Now().UnixMilli()
+		tmpUserID := fmt.Sprintf("NO-%d", tmpCount)
+		userIds = append(userIds, tmpUserID)
+		tmpCommodityCode := fmt.Sprintf("C%d", tmpCount)
+		tmpDescs := fmt.Sprintf("desc %d", tmpCount)
+		sql += fmt.Sprintf("('%s','%s',1000,100,'%s'),", tmpUserID, tmpCommodityCode, tmpDescs)
+	}
+	sql = sql[:len(sql)-1]
+
+	finder := zorm.NewFinder().Append(sql)
+	finder.InjectionCheck = false
+	rows, err := zorm.UpdateFinder(context.Background(), finder)
+	if err != nil {
+		fmt.Printf("insert failed, err:%v\n", err)
+		panic(err)
+	}
 	fmt.Printf("insert success： %d.\n", rows)
 	return userIds
 }
 
 func insertDuplicateData(id int64) int64 {
-	var (
-		insertId int64
-		ctx      = context.Background()
-	)
+	order := OrderTbl{
+		Id:            id,
+		UserId:        userID,
+		CommodityCode: commodityCode,
+		Count:         100,
+		Money:         100,
+		Descs:         descs,
+	}
+	rows, err := zorm.Insert(context.Background(), &order)
 
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		// insert
-		var (
-			userid = userID
-			sql    = "insert into order_tbl (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) values (?,?, ?, ?, ?, ?)"
-		)
-		finder := zorm.NewFinder()
-		finder = finder.Append(sql, id, userid, commodityCode, 100, 100, descs)
-		affected, err := zorm.UpdateFinder(ctx, finder)
-		if err != nil {
-			fmt.Printf("insert failed, err:%v\n", err)
-			return nil, err
-		}
-		fmt.Printf("insert success： %d.\n", affected)
-
-		// select
-		qfinder := zorm.NewFinder()
-		qfinder.Append("select id from order_tbl where user_id =?", userid)
-		has, err := zorm.QueryRow(ctx, qfinder, &insertId)
-		if err != nil {
-			fmt.Printf("get insert id failed, err:%v\n", err)
-			return nil, err
-		}
-		if !has {
-			fmt.Printf("get insert id empty.\n")
-			return nil, errors.New("get insert id empty.")
-		}
-		return nil, err
-	})
 	if err != nil {
-		fmt.Printf("insert id failed, err:%v\n", err)
+		fmt.Printf("insert failed, err:%v\n", err)
 		panic(err)
 	}
 
+	insertId := order.Id
+
+	fmt.Printf("insert success： %d.\n", rows)
 	return insertId
 }
 
-func updateData(insertID int64) error {
-
-	_, err := zorm.Transaction(context.Background(), func(ctx context.Context) (interface{}, error) {
-		sql := "update order_tbl set descs=? where id=?"
-
-		finder := zorm.NewFinder()
-		finder = finder.Append(sql, fmt.Sprintf("NewDescs-%d", time.Now().UnixMilli()), insertID)
-		affected, err := zorm.UpdateFinder(ctx, finder)
-		if err != nil {
-			fmt.Printf("update failed, err:%v\n", err)
-			return nil, err
-		}
-		fmt.Printf("update success： %d.\n", affected)
-
-		return nil, err
-	})
+func selectData(id int64) {
+	var orderTbl OrderTbl
+	finder := zorm.NewFinder().Append("select id,user_id,commodity_code,count,money,descs from  order_tbl where id = ? ", id)
+	has, err := zorm.QueryRow(context.Background(), finder, &orderTbl)
 	if err != nil {
-		fmt.Printf("update failed, err:%v\n", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("select return null")
+			return
+		}
 		panic(err)
 	}
+
+	if !has {
+		fmt.Println("select return null")
+		return
+	}
+	fmt.Printf("select --> : %v\n", orderTbl)
+}
+
+func updateData(insertID int64) error {
+	sql := "update order_tbl set descs=? where id=?"
+	finder := zorm.NewFinder().Append(sql, fmt.Sprintf("NewDescs-%d", time.Now().UnixMilli()), insertID)
+
+	rows, err := zorm.UpdateFinder(context.Background(), finder)
+	if err != nil {
+		fmt.Printf("update failed, err:%v\n", err)
+		return nil
+	}
+	fmt.Printf("update success： %d.\n", rows)
 	return nil
 }
 
 func deleteData(insertID int64) error {
-
-	_, err := zorm.Transaction(context.Background(), func(ctx context.Context) (interface{}, error) {
-
-		finder := zorm.NewFinder()
-		finder = finder.Append("delete from order_tbl where id=?", insertID)
-		affected, err := zorm.UpdateFinder(ctx, finder)
-		if err != nil {
-			fmt.Printf("delete failed, err:%v\n", err)
-			return nil, err
-		}
-
-		fmt.Printf("deletesuccess: %d.\n", affected)
-		return nil, err
-	})
+	sql := "delete from order_tbl where id=?"
+	finder := zorm.NewFinder().Append(sql, insertID)
+	rows, err := zorm.UpdateFinder(context.Background(), finder)
 	if err != nil {
 		fmt.Printf("delete failed, err:%v\n", err)
-		panic(err)
+		return nil
 	}
-
+	fmt.Printf("delete success： %d.\n", rows)
 	return nil
 }
 
 func batchDeleteData(userIds []string) error {
-	var rows int
-
-	_, err := zorm.Transaction(context.Background(), func(ctx context.Context) (interface{}, error) {
-
-		finder := zorm.NewFinder()
-		finder.Append("delete from order_tbl where user_id in (?)", userIds)
-
-		var err error
-		rows, err = zorm.UpdateFinder(ctx, finder)
-		return nil, err
-	})
+	var sql string
+	for _, v := range userIds {
+		sql += fmt.Sprintf("delete from order_tbl where user_id = '%s';", v)
+	}
+	finder := zorm.NewFinder().Append(sql)
+	finder.InjectionCheck = false
+	rows, err := zorm.UpdateFinder(context.Background(), finder)
 	if err != nil {
 		fmt.Printf("batch delete failed, err:%v\n", err)
-		return err
+		return nil
 	}
-
-	fmt.Printf("batch delete success: %d.\n", rows)
+	fmt.Printf("batch delete success： %d.\n", rows)
 	return nil
 }

@@ -60,7 +60,7 @@ func updateDataFail(ctx context.Context) error {
 		sql := "update order_tbl set descs=? where id=?"
 
 		finder := zorm.NewFinder()
-		finder = finder.Append(sql, fmt.Sprintf("NewDescs2-%d", time.Now().UnixMilli()), 10000)
+		finder = finder.Append(sql, fmt.Sprintf("NewDescs1-%d", time.Now().UnixMilli()), 10000)
 		affected, err := zorm.UpdateFinder(ctx, finder)
 		if err != nil {
 			fmt.Printf("update failed, err: %v\n", err)

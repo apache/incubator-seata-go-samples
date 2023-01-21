@@ -24,25 +24,6 @@ import (
 	seataSQL "github.com/seata/seata-go/pkg/datasource/sql"
 )
 
-type orderStruct struct {
-	zorm.EntityStruct
-
-	Id            int64  `column:"id"`
-	UserId        string `column:"user_id"`
-	CommodityCode string `column:"commodity_code"`
-	Count         int64  `column:"count"`
-	Money         int64  `column:"money"`
-	Descs         string `column:"descs"`
-}
-
-func (entity *orderStruct) GetTableName() string {
-	return "order_tbl"
-}
-
-func (entity *orderStruct) GetPKColumnName() string {
-	return "id"
-}
-
 func initService() {
 	dbConfig := zorm.DataSourceConfig{
 		DSN:        "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true",

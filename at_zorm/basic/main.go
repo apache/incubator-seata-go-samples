@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -17,91 +16,22 @@ func main() {
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
 		Timeout: time.Second * 30,
-	}, deleteData)
+	}, updateData)
 
 	<-make(chan struct{})
 }
 
-func queryData(ctx context.Context) error {
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		fmt.Printf("===================== xid=%s =====================\n", tm.GetXID(ctx))
-
-		var demo orderStruct
-		finder := zorm.NewSelectFinder(demo.GetTableName())
-		finder.Append("WHERE id=?", "230117")
-		has, err := zorm.QueryRow(ctx, finder, &demo)
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			return nil, err
-		}
-		data, _ := json.Marshal(demo)
-		fmt.Println(string(data))
-		fmt.Println(has)
-		return nil, err
-	})
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func insertData(ctx context.Context) error {
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		fmt.Printf("===================== xid=%s =====================\n", tm.GetXID(ctx))
-
-		var order orderStruct
-		order.Id = 230117
-		order.UserId = "230117"
-		order.CommodityCode = "2"
-		order.Count = 2
-		order.Money = 300
-		order.Descs = "At the company's New Year's dinner, I got two Jingdong gift cards worth 600 yuan"
-		_, err := zorm.Insert(ctx, &order)
-		return nil, err
-	})
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func deleteData(ctx context.Context) error {
-	fmt.Printf("===================== xid=%s =====================\n", tm.GetXID(ctx))
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		demo := &orderStruct{
-			Id: 230117,
-		}
-		_, err := zorm.Delete(ctx, demo)
-		return nil, err
-	})
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return err
-	}
-	insertData(ctx)
-	updateData(ctx)
-	queryData(ctx)
-	return nil
-}
-
 func updateData(ctx context.Context) error {
 	fmt.Printf("===================== xid=%s =====================\n", tm.GetXID(ctx))
-
-	_, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
-		order := &orderStruct{}
-		order.Id = 230117
-		order.Descs = "The company issued two Jingdong gift cards, worth 200 yuan."
-		_, err := zorm.UpdateNotZeroValue(ctx, order)
-		return nil, err
+	sql := "update order_tbl set descs=? where id=?"
+	rows, err := zorm.Transaction(ctx, func(ctx context.Context) (interface{}, error) {
+		finder := zorm.NewFinder().Append(sql, fmt.Sprintf("NewDescs1-%d", time.Now().UnixMilli()), 1)
+		return zorm.UpdateFinder(ctx, finder)
 	})
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("update failed, err:%v\n", err)
 		return err
 	}
+	fmt.Printf("update success： %d.\n", rows)
 	return nil
 }
