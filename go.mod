@@ -16,6 +16,7 @@ require (
 require (
 	cloud.google.com/go v0.93.3 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.1 // indirect
+	gitee.com/chunanyong/zorm v1.6.5
 	github.com/RoaringBitmap/roaring v1.2.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
