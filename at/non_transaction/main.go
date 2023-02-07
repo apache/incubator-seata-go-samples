@@ -43,7 +43,7 @@ var (
 )
 
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
+	client.InitPath("./conf/seatago.yml")
 	initService()
 
 	insertId := insertData()
