@@ -27,7 +27,7 @@ import (
 )
 
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
+	client.InitPath("./conf/seatago.yml")
 	initService()
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
