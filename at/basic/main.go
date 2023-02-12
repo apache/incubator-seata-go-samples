@@ -23,33 +23,20 @@ import (
 	"time"
 
 	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/tm"
 )
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	initService()
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx",
-		Timeout: time.Second * 30,
-	}, insertData)
-	<-make(chan struct{})
-}
+	initAtMySQLDriver()
+	ctx := context.Background()
 
-func insertData(ctx context.Context) error {
-	sql := "INSERT INTO `order_tbl` (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) VALUES (?, ?, ?, ?, ?, ?);"
-	ret, err := db.ExecContext(ctx, sql, 333, "NO-100001", "C100000", 100, nil, "init desc")
-	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
-		return err
-	}
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
-		return err
-	}
-	fmt.Printf("insert success： %d.\n", rows)
-	return nil
+	// sample: insert
+	// sampleInsert(ctx)
+
+	// sample: insert on update
+	sampleInsertOnUpdate(ctx)
+
+	<-make(chan struct{})
 }
 
 func deleteData(ctx context.Context) error {
