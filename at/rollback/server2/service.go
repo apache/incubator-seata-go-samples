@@ -18,42 +18,17 @@
 package main
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
-	"time"
 
 	sql2 "github.com/seata/seata-go/pkg/datasource/sql"
 )
 
-var (
-	db *sql.DB
-)
+var db *sql.DB
 
-func initService() {
+func initSeataATMySQLDriver() {
 	var err error
 	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client1?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
-}
-
-func updateDataFail(ctx context.Context) error {
-	sql := "update order_tbl set descs=? where id=?"
-	ret, err := db.ExecContext(ctx, sql, fmt.Sprintf("NewDescs1-%d", time.Now().UnixMilli()), 10000)
-	if err != nil {
-		fmt.Printf("update failed, err:%v\n", err)
-		return err
-	}
-
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("update failed, err:%v\n", err)
-		return err
-	}
-	fmt.Printf("update success： %d.\n", rows)
-	if rows == 0 {
-		return fmt.Errorf("rows affected 0")
-	}
-	return nil
 }
