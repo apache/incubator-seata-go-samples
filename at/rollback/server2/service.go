@@ -32,7 +32,7 @@ var (
 
 func initService() {
 	var err error
-	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client1?multiStatements=true&interpolateparams=true")
+	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client1?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
