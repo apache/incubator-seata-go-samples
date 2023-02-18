@@ -25,11 +25,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/seata/seata-go-samples/tcc/grpc/pb"
 	"github.com/seata/seata-go/pkg/client"
 	grpc2 "github.com/seata/seata-go/pkg/integration/grpc"
 	"github.com/seata/seata-go/pkg/tm"
 	"github.com/seata/seata-go/pkg/util/log"
-	"github.com/seata/seata-go/sample/tcc/grpc/pb"
 )
 
 func main() {
