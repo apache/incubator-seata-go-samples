@@ -79,8 +79,7 @@ func insertData(ctx context.Context) error {
 		Descs:         "insert desc",
 	}
 
-	tx := gormDB.WithContext(ctx).Table("order_tbl").Create(&data)
-	return tx.Error
+	return gormDB.WithContext(ctx).Table("order_tbl").Create(&data).Error
 }
 
 // deleteData delete one data
