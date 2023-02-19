@@ -20,7 +20,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/seata/seata-go/pkg/client"
@@ -40,7 +39,8 @@ type OrderTblModel struct {
 }
 
 func main() {
-	client.InitPath("../../conf/seatago.yml")
+	initConfig()
+	// insert
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
 		Timeout: time.Second * 30,
@@ -48,30 +48,47 @@ func main() {
 	<-make(chan struct{})
 }
 
-func insertData(ctx context.Context) error {
+func initConfig() {
+	// init seata client config
+	client.InitPath("/Users/rain/go/src/wang1309/seata-go-samples/conf/seatago.yml")
+	// init db object
+	initDB()
+}
 
+var gormDB *gorm.DB
+
+func initDB() {
 	sqlDB, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
 
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+}
 
+// insertData insert one data
+func insertData(ctx context.Context) error {
 	data := OrderTblModel{
-		UserId:        "NO-100002",
+		Id:            1,
+		UserId:        "NO-100003",
 		CommodityCode: "C100001",
 		Count:         101,
 		Money:         11,
 		Descs:         "insert desc",
 	}
 
-	gormDB = gormDB.WithContext(ctx).Table("order_tbl").Create(&data)
-	if gormDB.Error != nil {
-		fmt.Println(gormDB.Error)
-		return err
-	}
+	tx := gormDB.WithContext(ctx).Table("order_tbl").Create(&data)
+	return tx.Error
+}
 
-	return nil
+// deleteData delete one data
+func deleteData(ctx context.Context) error {
+	return gormDB.WithContext(ctx).Where("id = ?", "1").Delete(&OrderTblModel{}).Error
+}
+
+// updateDate update one data
+func updateData(ctx context.Context) error {
+	return gormDB.WithContext(ctx).Model(&OrderTblModel{}).Where("id = ?", "1").Update("commodity_code", "C100002").Error
 }
