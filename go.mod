@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.0.3-rc2
+	gitee.com/chunanyong/zorm v1.6.6
 	github.com/gin-gonic/gin v1.8.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/parnurzeal/gorequest v0.2.16
@@ -15,7 +16,6 @@ require (
 require (
 	cloud.google.com/go v0.93.3 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.1 // indirect
-	gitee.com/chunanyong/zorm v1.6.5
 	github.com/RoaringBitmap/roaring v1.2.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
