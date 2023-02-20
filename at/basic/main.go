@@ -19,16 +19,20 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
+	seata_go_samples "github.com/seata/seata-go-samples"
 	"github.com/seata/seata-go/pkg/client"
 	"github.com/seata/seata-go/pkg/tm"
 )
 
+var db *sql.DB
+
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	initService()
+	db = seata_go_samples.GetAtMySqlDb()
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
 		Timeout: time.Second * 30,

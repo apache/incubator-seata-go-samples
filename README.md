@@ -23,6 +23,19 @@
    go run main.go
    ````
 
+### Customize mysql connection configurations
+
+The default mysql connection configuration is suitable with dockercompose/docker-compose.yml.
+
+You can also customize it by system environment.
+
+System Env Supported:
+1. MYSQL_HOST
+2. MYSQL_PORT
+3. MYSQL_USERNAME
+4. MYSQL_PASSWORD
+5. MYSQL_DB
+
 ## How to use go mod replace to test samples for new PR
 
 1. Modify the seata-go dependency version to v0.0.0-incompatible, and remove the version number if it exists in the

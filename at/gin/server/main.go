@@ -18,7 +18,10 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
+
+	seata_go_samples "github.com/seata/seata-go-samples"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,9 +30,11 @@ import (
 	"github.com/seata/seata-go/pkg/util/log"
 )
 
+var db *sql.DB
+
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
-	initService()
+	client.InitPath("./conf/seatago.yml")
+	db = seata_go_samples.GetAtMySqlDb()
 
 	r := gin.Default()
 
