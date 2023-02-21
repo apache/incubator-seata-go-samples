@@ -28,8 +28,8 @@ import (
 )
 
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
-	initService()
+	client.InitPath("./conf/seatago.yml")
+	initSeataATMySQLDriver()
 
 	r := gin.Default()
 
@@ -45,6 +45,15 @@ func main() {
 			return
 		}
 		c.JSON(http.StatusOK, "updateData ok")
+	})
+
+	r.POST("/insertOnUpdateDataSuccess", func(c *gin.Context) {
+		log.Infof("get tm insertOnUpdateData")
+		if err := insertOnUpdateDataSuccess(c); err != nil {
+			c.JSON(http.StatusBadRequest, "insertOnUpdateData failure")
+			return
+		}
+		c.JSON(http.StatusOK, "insertOnUpdateData ok")
 	})
 
 	if err := r.Run(":8080"); err != nil {

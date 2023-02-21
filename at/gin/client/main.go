@@ -20,47 +20,23 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/parnurzeal/gorequest"
-
 	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/constant"
-	"github.com/seata/seata-go/pkg/tm"
-	"github.com/seata/seata-go/pkg/util/log"
 )
 
 var serverIpPort = "http://127.0.0.1:8080"
 
 func main() {
 	flag.Parse()
-	client.InitPath("./sample/conf/seatago.yml")
+	client.InitPath("./conf/seatago.yml")
 
 	bgCtx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
-	transInfo := &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx",
-		Timeout: time.Second * 30,
-	}
+	// sample update
+	sampleUpdate(bgCtx)
 
-	if err := tm.WithGlobalTx(bgCtx, transInfo, updateData); err != nil {
-		panic(fmt.Sprintf("tm update data err, %v", err))
-	}
-}
-
-func updateData(ctx context.Context) (re error) {
-	request := gorequest.New()
-	log.Infof("branch transaction begin")
-
-	request.Post(serverIpPort+"/updateDataSuccess").
-		Set(constant.XidKey, tm.GetXID(ctx)).
-		End(func(response gorequest.Response, body string, errs []error) {
-			if response.StatusCode != http.StatusOK {
-				re = fmt.Errorf("update data fail")
-			}
-		})
-	return
+	// sample insert on update
+	sampleInsertOnUpdate(bgCtx)
 }
