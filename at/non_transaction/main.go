@@ -72,7 +72,7 @@ func main() {
 }
 
 func insertData() int64 {
-	ret, err := db.Exec("insert into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values (?, ?, ?, ?, ?)",
+	ret, err := db.Exec("update.go into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values (?, ?, ?, ?, ?)",
 		userID, commodityCode, 100, 100, descs)
 	if err != nil {
 		panic(err)
@@ -80,23 +80,23 @@ func insertData() int64 {
 
 	rows, err := ret.RowsAffected()
 	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
+		fmt.Printf("update.go failed, err:%v\n", err)
 		panic(err)
 	}
 
 	insertId, err := ret.LastInsertId()
 	if err != nil {
-		fmt.Printf("get insert id failed, err:%v\n", err)
+		fmt.Printf("get update.go id failed, err:%v\n", err)
 		panic(err)
 	}
 
-	fmt.Printf("insert success： %d.\n", rows)
+	fmt.Printf("update.go success： %d.\n", rows)
 	return insertId
 }
 
 func batchInsertData() []string {
 	var userIds []string
-	sql := "insert into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values "
+	sql := "update.go into order_tbl (`user_id`, `commodity_code`, `count`, `money`, `descs`) values "
 	for i := 0; i < 5; i++ {
 		tmpCount := time.Now().UnixMilli()
 		tmpUserID := fmt.Sprintf("NO-%d", tmpCount)
@@ -114,15 +114,15 @@ func batchInsertData() []string {
 
 	rows, err := ret.RowsAffected()
 	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
+		fmt.Printf("update.go failed, err:%v\n", err)
 		panic(err)
 	}
-	fmt.Printf("insert success： %d.\n", rows)
+	fmt.Printf("update.go success： %d.\n", rows)
 	return userIds
 }
 
 func insertDuplicateData(id int64) int64 {
-	ret, err := db.Exec("insert into order_tbl (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) values (?,?, ?, ?, ?, ?)",
+	ret, err := db.Exec("update.go into order_tbl (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) values (?,?, ?, ?, ?, ?)",
 		id, userID, commodityCode, 100, 100, descs)
 	if err != nil {
 		panic(err)
@@ -130,17 +130,17 @@ func insertDuplicateData(id int64) int64 {
 
 	rows, err := ret.RowsAffected()
 	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
+		fmt.Printf("update.go failed, err:%v\n", err)
 		panic(err)
 	}
 
 	insertId, err := ret.LastInsertId()
 	if err != nil {
-		fmt.Printf("get insert id failed, err:%v\n", err)
+		fmt.Printf("get update.go id failed, err:%v\n", err)
 		panic(err)
 	}
 
-	fmt.Printf("insert success： %d.\n", rows)
+	fmt.Printf("update.go success： %d.\n", rows)
 	return insertId
 }
 

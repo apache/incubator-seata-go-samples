@@ -52,6 +52,15 @@ func main() {
 		c.JSON(http.StatusOK, "updateData ok")
 	})
 
+	r.POST("/insertOnUpdateDataFail", func(c *gin.Context) {
+		log.Infof("get tm insertOnUpdateData")
+		if err := insertOnUpdateDataFail(c); err != nil {
+			c.JSON(http.StatusBadRequest, "insertOnUpdateData failure")
+			return
+		}
+		c.JSON(http.StatusOK, "insertOnUpdateData ok")
+	})
+
 	if err := r.Run(":8081"); err != nil {
 		log.Fatalf("start tcc server fatal: %v", err)
 	}

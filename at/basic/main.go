@@ -25,18 +25,21 @@ import (
 
 	seata_go_samples "github.com/seata/seata-go-samples"
 	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/tm"
 )
 
 var db *sql.DB
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	db = seata_go_samples.GetAtMySqlDb()
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx",
-		Timeout: time.Second * 30,
-	}, insertData)
+	initAtMySQLDriver()
+	ctx := context.Background()
+
+	// sample: insert
+	// sampleInsert(ctx)
+
+	// sample: insert on update
+	sampleInsertOnUpdate(ctx)
+
 	<-make(chan struct{})
 }
 
