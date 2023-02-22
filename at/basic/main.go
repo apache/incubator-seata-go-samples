@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"time"
 
-	seata_go_samples "github.com/seata/seata-go-samples"
+	"github.com/seata/seata-go-samples/util"
 	"github.com/seata/seata-go/pkg/client"
 )
 
@@ -31,7 +31,7 @@ var db *sql.DB
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	initAtMySQLDriver()
+	db = util.GetAtMySqlDb()
 	ctx := context.Background()
 
 	// sample: insert
@@ -41,22 +41,6 @@ func main() {
 	sampleInsertOnUpdate(ctx)
 
 	<-make(chan struct{})
-}
-
-func insertData(ctx context.Context) error {
-	sql := "INSERT INTO `order_tbl` (`id`, `user_id`, `commodity_code`, `count`, `money`, `descs`) VALUES (?, ?, ?, ?, ?, ?);"
-	ret, err := db.ExecContext(ctx, sql, 333, "NO-100001", "C100000", 100, nil, "init desc")
-	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
-		return err
-	}
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("insert failed, err:%v\n", err)
-		return err
-	}
-	fmt.Printf("insert success： %d.\n", rows)
-	return nil
 }
 
 func deleteData(ctx context.Context) error {

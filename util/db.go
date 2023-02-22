@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package seata_go_samples
+package util
 
 import (
 	"database/sql"
