@@ -39,19 +39,7 @@ func main() {
 
 	// sample insert on update
 	sampleInsertOnUpdate(bgCtx)
-}
 
-func selectForUpdate(ctx context.Context) (re error) {
-	req := gorequest.New()
-
-	log.Infof("branch transaction begin")
-
-	req.Post(serverIpPort+"/selectForUpdateSuccess").
-		Set(constant.XidKey, tm.GetXID(ctx)).
-		End(func(response gorequest.Response, body string, errs []error) {
-			if response.StatusCode != http.StatusOK {
-				re = fmt.Errorf("select for update failed")
-			}
-		})
-	return
+	// sample select for update
+	sampleSelectForUpdate(bgCtx)
 }

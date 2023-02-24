@@ -32,36 +32,3 @@ func initSeataATMySQLDriver() {
 		panic("init service error")
 	}
 }
-
-func updateDataSuccess(ctx context.Context) error {
-	sql := "update order_tbl set descs=? where id=?"
-	ret, err := db.ExecContext(ctx, sql, fmt.Sprintf("NewDescs1-%d", time.Now().UnixMilli()), 1)
-	if err != nil {
-		fmt.Printf("update failed, err:%v\n", err)
-		return nil
-	}
-
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("update failed, err:%v\n", err)
-		return nil
-	}
-	fmt.Printf("update success： %d.\n", rows)
-	return nil
-}
-
-func selectForUpdateSucc(ctx context.Context) error {
-	sql := "select id, user_id from order_tbl where id=?"
-	ret, err := db.ExecContext(ctx, sql, 333)
-	if err != nil {
-		fmt.Printf("select for udpate failed, err:%v\n", err)
-		return err
-	}
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("select for udpate failed, err:%v\n", err)
-		return err
-	}
-	fmt.Printf("select for udpate success： %d.\n", rows)
-	return nil
-}

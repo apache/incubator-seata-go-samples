@@ -31,10 +31,13 @@ func main() {
 	ctx := context.Background()
 
 	// sample: insert
-	// sampleInsert(ctx)
+	sampleInsert(ctx)
 
 	// sample: insert on update
 	sampleInsertOnUpdate(ctx)
+
+	// sample: select for udpate
+	sampleSelectForUpdate(ctx)
 
 	<-make(chan struct{})
 }
@@ -68,21 +71,5 @@ func updateData(ctx context.Context) error {
 		return err
 	}
 	fmt.Printf("update success： %d.\n", rows)
-	return nil
-}
-
-func selectForUpdateData(ctx context.Context) error {
-	sql := "select id, user_id from order_tbl where id=?"
-	ret, err := db.ExecContext(ctx, sql, 333)
-	if err != nil {
-		fmt.Printf("select for udpate failed, err:%v\n", err)
-		return err
-	}
-	rows, err := ret.RowsAffected()
-	if err != nil {
-		fmt.Printf("select for udpate failed, err:%v\n", err)
-		return err
-	}
-	fmt.Printf("select for udpate success： %d.\n", rows)
 	return nil
 }
