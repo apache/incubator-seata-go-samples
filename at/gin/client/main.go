@@ -39,4 +39,7 @@ func main() {
 
 	// sample insert on update
 	sampleInsertOnUpdate(bgCtx)
+
+	// sample select for update
+	sampleSelectForUpdate(bgCtx)
 }

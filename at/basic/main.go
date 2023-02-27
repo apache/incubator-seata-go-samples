@@ -31,10 +31,13 @@ func main() {
 	ctx := context.Background()
 
 	// sample: insert
-	// sampleInsert(ctx)
+	sampleInsert(ctx)
 
 	// sample: insert on update
 	sampleInsertOnUpdate(ctx)
+
+	// sample: select for udpate
+	sampleSelectForUpdate(ctx)
 
 	<-make(chan struct{})
 }
