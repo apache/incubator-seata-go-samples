@@ -19,15 +19,19 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/seata/seata-go-samples/util"
 	"github.com/seata/seata-go/pkg/client"
 )
 
+var db *sql.DB
+
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	initAtMySQLDriver()
+	db = util.GetAtMySqlDb()
 	ctx := context.Background()
 
 	// sample: insert

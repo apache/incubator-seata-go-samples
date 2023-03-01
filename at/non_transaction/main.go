@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/seata/seata-go-samples/util"
 	"github.com/seata/seata-go/pkg/client"
 )
 
@@ -42,9 +43,11 @@ var (
 	descs         = fmt.Sprintf("desc %d", count)
 )
 
+var db *sql.DB
+
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
-	initService()
+	client.InitPath("./conf/seatago.yml")
+	db = util.GetAtMySqlDb()
 
 	insertId := insertData()
 
