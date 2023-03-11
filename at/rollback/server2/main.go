@@ -18,18 +18,21 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
+	"github.com/seata/seata-go-samples/util"
 	"github.com/seata/seata-go/pkg/client"
 	ginmiddleware "github.com/seata/seata-go/pkg/integration/gin"
 	"github.com/seata/seata-go/pkg/util/log"
 )
 
+var db *sql.DB
+
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
-	initService()
+	client.InitPath("./conf/seatago.yml")
+	db = util.GetAtMySqlDb()
 
 	r := gin.Default()
 
@@ -45,6 +48,15 @@ func main() {
 			return
 		}
 		c.JSON(http.StatusOK, "updateData ok")
+	})
+
+	r.POST("/insertOnUpdateDataFail", func(c *gin.Context) {
+		log.Infof("get tm insertOnUpdateData")
+		if err := insertOnUpdateDataFail(c); err != nil {
+			c.JSON(http.StatusBadRequest, "insertOnUpdateData failure")
+			return
+		}
+		c.JSON(http.StatusOK, "insertOnUpdateData ok")
 	})
 
 	if err := r.Run(":8081"); err != nil {

@@ -20,10 +20,10 @@ package main
 import (
 	"context"
 
+	"github.com/seata/seata-go-samples/tcc/local/service"
 	"github.com/seata/seata-go/pkg/client"
 	"github.com/seata/seata-go/pkg/tm"
 	"github.com/seata/seata-go/pkg/util/log"
-	"github.com/seata/seata-go/sample/tcc/local/service"
 )
 
 func main() {
