@@ -14,8 +14,6 @@ require (
 	gorm.io/gorm v1.24.3
 )
 
-//replace github.com/seata/seata-go v1.0.3 => ../seata-go
-
 require (
 	cloud.google.com/go v0.93.3 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.1 // indirect
