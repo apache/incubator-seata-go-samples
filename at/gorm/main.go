@@ -29,8 +29,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var serverIpPort = "http://127.0.0.1:8080"
-
 type OrderTblModel struct {
 	Id            int64  `gorm:"column:id" json:"id"`
 	UserId        string `gorm:"column:user_id" json:"user_id"`
