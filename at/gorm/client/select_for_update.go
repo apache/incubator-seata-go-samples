@@ -20,13 +20,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/parnurzeal/gorequest"
-	"github.com/seata/seata-go/pkg/constant"
-	"github.com/seata/seata-go/pkg/util/log"
 	"net/http"
 	"time"
 
 	"github.com/seata/seata-go/pkg/tm"
+
+	"github.com/parnurzeal/gorequest"
+	"github.com/seata/seata-go/pkg/constant"
+	"github.com/seata/seata-go/pkg/util/log"
 )
 
 func selectForUpdate(ctx context.Context) (re error) {
