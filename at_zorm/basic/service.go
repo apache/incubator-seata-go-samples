@@ -26,7 +26,7 @@ import (
 
 func initService() {
 	dbConfig := zorm.DataSourceConfig{
-		DSN:        "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true",
+		DSN:        "root:12345678@tcp(127.0.0.1:3306)/seata_client?charset=utf8&parseTime=true&loc=Local&multiStatements=true&interpolateParams=true",
 		DriverName: seataSQL.SeataATMySQLDriver,
 		Dialect:    "mysql",
 		// FuncGlobalTransaction: MyFuncGlobalTransaction,
