@@ -15,22 +15,25 @@
 #  limitations under the License.
 #
 
-# game
-array+=("game/go-server-game")
-array+=("game/go-server-gate")
+# tests
+array+=("integrate_test/at/insert")
 
-echo "nice"
 
-#DOCKER_DIR=$(pwd)/integrate_test/dockercompose
-#docker-compose -f $DOCKER_DIR/docker-compose.yml up -d
-#bash -f $DOCKER_DIR/docker-health-check.sh
-#for((i=0;i<${#array[*]};i++))
-#do
-#	./integrate_test.sh "${array[i]}"
-#	result=$?
-#	if [ $result -gt 0 ]; then
-#	      docker-compose -f $DOCKER_DIR/docker-compose.yml down
-#        exit $result
-#	fi
-#done
-#docker-compose -f $DOCKER_DIR/docker-compose.yml down
+
+
+DOCKER_DIR=$(pwd)/dockercompose
+docker-compose -f $DOCKER_DIR/docker-compose.yml up -d
+
+bash -f $DOCKER_DIR/docker-health-check.sh
+
+for var in ${array[@]}; do
+	./integrate_test.sh "$var"
+	result=$?
+	if [ $result -gt 0 ]; then
+	      docker-compose -f $DOCKER_DIR/docker-compose.yml down
+	      echo "test failed"
+	      echo "$var"
+        exit $result
+	fi
+done
+docker-compose -f $DOCKER_DIR/docker-compose.yml down

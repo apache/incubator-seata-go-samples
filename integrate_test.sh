@@ -20,45 +20,24 @@ if [ -z "$1" ]; then
 fi
 
 P_DIR=$(pwd)/$1
-if [ -f "$P_DIR"/build/test.sh ]; then
-    "$P_DIR"/build/test.sh "$P_DIR"
-    result=$?
-    exit $((result))
-fi
+#if [ -f "$P_DIR"/build/test.sh ]; then
+#    "$P_DIR"/build/test.sh "$P_DIR"
+#    result=$?
+#    exit $((result))
+#fi
 
-INTEGRATE_DIR=$(pwd)/integrate_test/$1
+INTEGRATE_DIR=$(pwd)/$1
+
+echo "$INTEGRATE_DIR"
+
+
 
 # waiting for port release
 sleep 5
 
 # start server
-make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile start
-# waiting for registry
-sleep 5
-
-# start integration
-make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile integration
+make -f "$INTEGRATE_DIR"/Makefile run DIRECTORY=$INTEGRATE_DIR
 result=$?
 
-# if fail print server log
-if [ $result != 0 ];then
-  make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile print-server-log
-fi
-
-JAVA_TEST_SHELL=$INTEGRATE_DIR/tests/java
-if [ -e $JAVA_TEST_SHELL ]; then
-  # run java test
-  make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile integration-java
-  result=$?
-
-  # if fail print server log
-  if [ $result != 0 ];then
-    make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile print-server-log
-  fi
-fi
-
-
-# stop server
-make PROJECT_DIR=$P_DIR PROJECT_NAME=$(basename $P_DIR) INTEGRATE_DIR=$INTEGRATE_DIR -f build/Makefile clean
 
 exit $((result))
