@@ -45,7 +45,7 @@ func main() {
 	defer conn.Close()
 	c1, c2 := pb.NewTCCServiceBusiness1Client(conn), pb.NewTCCServiceBusiness2Client(conn)
 
-	client.InitPath("./sample/conf/seatago.yml")
+	client.InitPath("./conf/seatago.yml")
 	tm.WithGlobalTx(
 		context.Background(),
 		&tm.GtxConfig{
