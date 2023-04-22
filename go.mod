@@ -1,6 +1,6 @@
 module github.com/seata/seata-go-samples
 
-go 1.19
+go 1.18
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.0.3-rc2
