@@ -29,6 +29,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var serverIpPort = "http://127.0.0.1:8080"
+
 type OrderTblModel struct {
 	Id            int64  `gorm:"column:id" json:"id"`
 	UserId        string `gorm:"column:user_id" json:"user_id"`
@@ -50,7 +52,7 @@ func main() {
 
 func initConfig() {
 	// init seata client config
-	client.InitPath("/Users/rain/go/src/wang1309/seata-go-samples/conf/seatago.yml")
+	client.InitPath("/Users/jasondeng/development/seata-go-samples-1/conf/seatago.yml")
 	// init db object
 	initDB()
 }
