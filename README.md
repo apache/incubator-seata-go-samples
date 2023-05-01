@@ -20,7 +20,7 @@
    cd at/basic
    ````
    ````shell
-   go run main.go
+   go run .
    ````
 
 ### Customize mysql connection configurations
