@@ -42,6 +42,7 @@ func main() {
 	r.Use(ginmiddleware.TransactionMiddleware())
 
 	r.POST("/updateDataSuccess", updateDataSuccessHandler)
+	r.POST("/selectForUpdateSuccess", selectForUpdateSuccHandler)
 
 	r.POST("/insertOnUpdateDataSuccess", func(c *gin.Context) {
 		log.Infof("get tm insertOnUpdateData")
@@ -64,4 +65,13 @@ func updateDataSuccessHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "updateData ok")
+}
+
+func selectForUpdateSuccHandler(c *gin.Context) {
+	log.Infof("execute select for update")
+	if err := selectForUpdateSucc(c); err != nil {
+		c.JSON(http.StatusBadRequest, "select for update failed")
+		return
+	}
+	c.JSON(http.StatusOK, "select for update success")
 }

@@ -50,7 +50,7 @@ func main() {
 
 func initConfig() {
 	// init seata client config
-	client.InitPath("/Users/rain/go/src/wang1309/seata-go-samples/conf/seatago.yml")
+	client.InitPath("./conf/seatago.yml")
 	// init db object
 	initDB()
 }
