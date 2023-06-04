@@ -21,12 +21,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
 	"github.com/seata/seata-go/pkg/client"
 	sql2 "github.com/seata/seata-go/pkg/datasource/sql"
 	"github.com/seata/seata-go/pkg/tm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"time"
 )
 
 type OrderTblModel struct {

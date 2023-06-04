@@ -58,7 +58,7 @@ func initConfig() {
 var gormDB *gorm.DB
 
 func initDB() {
-	sqlDB, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	sqlDB, err := sql.Open(sql2.SeataXAMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
