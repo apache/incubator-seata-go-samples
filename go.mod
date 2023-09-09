@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.0
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/seata/seata-go v1.0.3
+	github.com/seata/seata-go v1.2.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.4.5
