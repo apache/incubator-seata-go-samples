@@ -31,6 +31,7 @@ var db *sql.DB
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
+	//client.InitPath("./conf/seatago-nacos.yml")
 	db = util.GetAtMySqlDb()
 	ctx := context.Background()
 
