@@ -19,30 +19,45 @@ package main
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/seata/seata-go-samples/tcc/local/service"
+	"github.com/gin-gonic/gin"
+
 	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/tm"
+	"github.com/seata/seata-go/pkg/constant"
 	"github.com/seata/seata-go/pkg/util/log"
 )
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name: "TccSampleLocalGlobalTx",
-	}, business)
-	<-make(chan struct{})
-}
+	initService()
 
-func business(ctx context.Context) (re error) {
-	if _, re = service.NewTestTCCServiceBusiness1Proxy().Prepare(ctx, 1); re != nil {
-		log.Errorf("TestTCCServiceBusiness1 prepare error, %v", re)
-		return
-	}
+	r := gin.Default()
 
-	if _, re = service.NewTestTCCServiceBusiness2Proxy().Prepare(ctx, 3); re != nil {
-		log.Errorf("TestTCCServiceBusiness2 prepare error, %v", re)
-		return
+	// NOTE: when use gin，must set ContextWithFallback true when gin version >= 1.8.1
+	// r.ContextWithFallback = true
+
+	// Without using the middleware provided by seata-go, manually fetch xid and bind to ctx
+	//r.Use(ginmiddleware.TransactionMiddleware())
+
+	r.POST("/updateDataFail", func(c *gin.Context) {
+		log.Infof("get tm updateData")
+		xid := c.GetHeader(constant.XidKey)
+		if xid == "" {
+			xid = c.GetHeader(constant.XidKeyLowercase)
+		}
+		newCtx := c.Request.Context()
+		newCtx = context.WithValue(newCtx, "XID", xid)
+		c.Request = c.Request.WithContext(newCtx)
+
+		if err := updateDataFail(newCtx); err != nil {
+			c.JSON(http.StatusBadRequest, "updateData failure")
+			return
+		}
+		c.JSON(http.StatusOK, "updateData ok")
+	})
+
+	if err := r.Run(":8081"); err != nil {
+		log.Fatalf("start tcc server fatal: %v", err)
 	}
-	return
 }

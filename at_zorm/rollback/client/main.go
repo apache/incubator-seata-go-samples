@@ -20,6 +20,8 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/parnurzeal/gorequest"
@@ -30,28 +32,46 @@ import (
 	"github.com/seata/seata-go/pkg/util/log"
 )
 
+var (
+	serverIpPort  = "http://127.0.0.1:8080"
+	serverIpPort2 = "http://127.0.0.1:8081"
+)
+
 func main() {
 	flag.Parse()
 	client.InitPath("./conf/seatago.yml")
+
 	bgCtx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
-	serverIpPort := "http://127.0.0.1:8080"
 
-	tm.WithGlobalTx(
-		bgCtx,
-		&tm.GtxConfig{
-			Name: "TccSampleLocalGlobalTx",
-		},
-		func(ctx context.Context) (re error) {
-			request := gorequest.New()
-			log.Infof("branch transaction begin")
-			request.Post(serverIpPort+"/prepare").
-				Set(constant.XidKey, tm.GetXID(ctx)).
-				End(func(response gorequest.Response, body string, errs []error) {
-					if len(errs) != 0 {
-						re = errs[0]
-					}
-				})
-			return
+	transInfo := &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx",
+		Timeout: time.Second * 30,
+	}
+
+	if err := tm.WithGlobalTx(bgCtx, transInfo, updateData); err != nil {
+		panic(fmt.Sprintf("tm update data err, %v", err))
+	}
+}
+
+func updateData(ctx context.Context) (re error) {
+	request := gorequest.New()
+	log.Infof("branch transaction begin")
+
+	request.Post(serverIpPort+"/updateDataSuccess").
+		Set(constant.XidKey, tm.GetXID(ctx)).
+		End(func(response gorequest.Response, body string, errs []error) {
+			if response.StatusCode != http.StatusOK {
+				re = fmt.Errorf("update data fail")
+			}
 		})
+
+	request.Post(serverIpPort2+"/updateDataFail").
+		Set(constant.XidKey, tm.GetXID(ctx)).
+		End(func(response gorequest.Response, body string, errs1 []error) {
+			if response.StatusCode != http.StatusOK {
+				re = fmt.Errorf("update data fail")
+			}
+		})
+	return
 }

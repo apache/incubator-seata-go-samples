@@ -19,30 +19,47 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
+	"net/http"
+	"time"
 
-	"github.com/seata/seata-go-samples/tcc/local/service"
+	"github.com/parnurzeal/gorequest"
+
 	"github.com/seata/seata-go/pkg/client"
+	"github.com/seata/seata-go/pkg/constant"
 	"github.com/seata/seata-go/pkg/tm"
 	"github.com/seata/seata-go/pkg/util/log"
 )
 
+var serverIpPort = "http://127.0.0.1:8080"
+
 func main() {
+	flag.Parse()
 	client.InitPath("./conf/seatago.yml")
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name: "TccSampleLocalGlobalTx",
-	}, business)
-	<-make(chan struct{})
+	bgCtx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	defer cancel()
+
+	transInfo := &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx",
+		Timeout: time.Second * 30,
+	}
+
+	if err := tm.WithGlobalTx(bgCtx, transInfo, updateData); err != nil {
+		panic(fmt.Sprintf("tm update data err, %v", err))
+	}
 }
 
-func business(ctx context.Context) (re error) {
-	if _, re = service.NewTestTCCServiceBusiness1Proxy().Prepare(ctx, 1); re != nil {
-		log.Errorf("TestTCCServiceBusiness1 prepare error, %v", re)
-		return
-	}
+func updateData(ctx context.Context) (re error) {
+	request := gorequest.New()
+	log.Infof("branch transaction begin")
 
-	if _, re = service.NewTestTCCServiceBusiness2Proxy().Prepare(ctx, 3); re != nil {
-		log.Errorf("TestTCCServiceBusiness2 prepare error, %v", re)
-		return
-	}
+	request.Post(serverIpPort+"/updateDataSuccess").
+		Set(constant.XidKey, tm.GetXID(ctx)).
+		End(func(response gorequest.Response, body string, errs []error) {
+			if response.StatusCode != http.StatusOK {
+				re = fmt.Errorf("update data fail")
+			}
+		})
 	return
 }
