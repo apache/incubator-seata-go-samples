@@ -50,7 +50,7 @@ func main() {
 
 func initConfig() {
 	// init seata client config
-	client.InitPath("./conf/seatago.yml")
+	client.InitPath("../../conf/seatago.yml")
 	// init db object
 	initDB()
 }
