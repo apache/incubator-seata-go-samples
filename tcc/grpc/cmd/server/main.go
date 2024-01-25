@@ -33,7 +33,7 @@ import (
 )
 
 func main() {
-	client.InitPath("./conf/seatago.yml")
+	client.InitPath("../../../../conf/seatago.yml")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

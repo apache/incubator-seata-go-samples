@@ -30,7 +30,7 @@ import (
 var db *sql.DB
 
 func main() {
-	client.InitPath("./conf/seatago.yml")
+	client.InitPath("../../conf/seatago.yml")
 	db = util.GetXAMySqlDb()
 	ctx := context.Background()
 

@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	client.InitPath("./sample/conf/seatago.yml")
+	client.InitPath("../../../conf/seatago.yml")
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name: "TccSampleLocalGlobalTx",
 	}, business)
