@@ -29,7 +29,10 @@ func GetAtMySqlDb() *sql.DB {
 	dsn := os.ExpandEnv("${MYSQL_USERNAME}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DB}?multiStatements=true&interpolateParams=true")
 	dbAt, err := sql.Open(sql2.SeataATMySQLDriver, dsn)
 	if err != nil {
-		panic("init seata at mysql driver error")
+		panic("init seata at mysql driver error: " + err.Error())
+	}
+	if err := dbAt.Ping(); err != nil {
+		panic("mysql ping error: " + err.Error())
 	}
 	return dbAt
 }
@@ -55,7 +58,7 @@ func defaultEnv() {
 		os.Setenv("MYSQL_USERNAME", "root")
 	}
 	if os.Getenv("MYSQL_PASSWORD") == "" {
-		os.Setenv("MYSQL_PASSWORD", "123456")
+		os.Setenv("MYSQL_PASSWORD", "12345678")
 	}
 	if os.Getenv("MYSQL_DB") == "" {
 		os.Setenv("MYSQL_DB", "seata_client")

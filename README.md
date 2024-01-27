@@ -28,7 +28,9 @@
 
 ### Customize mysql connection configurations
 
-The default mysql connection configuration is suitable with dockercompose/docker-compose.yml.
+The default mysql connection configuration (`util/db.go defaultEnv()`) matches `dockercompose/docker-compose.yml`'s
+mysql server. You may make use this docker mysql server with `docker-compose -f docker-compose.yml up -d` to start
+both seat-server and mysql server.
 
 You can also customize it by system environment.
 
@@ -39,6 +41,8 @@ System Env Supported:
 3. MYSQL_USERNAME
 4. MYSQL_PASSWORD
 5. MYSQL_DB
+
+Remember to import `dockercompose/mysql/order.sql` into mysql server to init `seata_client` database and tables.
 
 ## How to use go mod replace to test samples for new PR
 
