@@ -26,10 +26,10 @@
    go run .
    ```
 
-### Customize mysql connection configurations
+### Mysql connection configurations
 
 The default mysql connection configuration (`util/db.go defaultEnv()`) matches `dockercompose/docker-compose.yml`'s
-mysql server. You may make use this docker mysql server with `docker-compose -f docker-compose.yml up -d` to start
+mysql server. You may make use of this docker mysql server with `docker-compose -f docker-compose.yml up -d` to start
 both seat-server and mysql server.
 
 You can also customize it by system environment.
