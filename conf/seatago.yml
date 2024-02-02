@@ -65,10 +65,8 @@ seata:
       # Only store modified fields
       only-care-update-columns: true
       compress:
-        # Whether compression is required
-        enable: true
-        # Compression type
-        type: zip
+        # Compression type. Allowed Options: None, Gzip, Zip, Sevenz, Bzip2, Lz4, Zstd, Deflate
+        type: None
         #  Compression threshold Unit: k
         threshold: 64k
     load-balance:
