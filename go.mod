@@ -1,4 +1,4 @@
-module github.com/seata/seata-go-samples
+module github.com/apache/seata-go-samples
 
 go 1.18
 
@@ -7,14 +7,14 @@ require (
 	github.com/gin-gonic/gin v1.8.0
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/seata/seata-go v1.2.0
+	github.com/apache/seata-go v1.2.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
 )
 
-// replace github.com/seata/seata-go v1.0.3 => ../seata-go
+// replace github.com/apache/seata-go v1.0.3 => ../seata-go
 
 require (
 	cloud.google.com/go v0.93.3 // indirect

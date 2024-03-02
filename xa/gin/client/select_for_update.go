@@ -23,10 +23,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/apache/seata-go/pkg/constant"
+	"github.com/apache/seata-go/pkg/tm"
+	"github.com/apache/seata-go/pkg/util/log"
 	"github.com/parnurzeal/gorequest"
-	"github.com/seata/seata-go/pkg/constant"
-	"github.com/seata/seata-go/pkg/tm"
-	"github.com/seata/seata-go/pkg/util/log"
 )
 
 func selectForUpdate(ctx context.Context) (re error) {

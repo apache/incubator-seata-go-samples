@@ -21,11 +21,11 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/apache/seata-go-samples/util"
+	"github.com/apache/seata-go/pkg/client"
+	ginmiddleware "github.com/apache/seata-go/pkg/integration/gin"
+	"github.com/apache/seata-go/pkg/util/log"
 	"github.com/gin-gonic/gin"
-	"github.com/seata/seata-go-samples/util"
-	"github.com/seata/seata-go/pkg/client"
-	ginmiddleware "github.com/seata/seata-go/pkg/integration/gin"
-	"github.com/seata/seata-go/pkg/util/log"
 )
 
 var db *sql.DB

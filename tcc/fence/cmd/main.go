@@ -20,12 +20,12 @@ package main
 import (
 	"context"
 
+	"github.com/apache/seata-go/pkg/client"
+	"github.com/apache/seata-go/pkg/tm"
+	"github.com/apache/seata-go/pkg/util/log"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/tm"
-	"github.com/seata/seata-go/pkg/util/log"
 
-	"github.com/seata/seata-go-samples/tcc/fence/service"
+	"github.com/apache/seata-go-samples/tcc/fence/service"
 )
 
 func main() {

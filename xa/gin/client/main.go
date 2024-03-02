@@ -22,7 +22,7 @@ import (
 	"flag"
 	"time"
 
-	"github.com/seata/seata-go/pkg/client"
+	"github.com/apache/seata-go/pkg/client"
 )
 
 var serverIpPort = "http://127.0.0.1:8080"
