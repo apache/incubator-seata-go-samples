@@ -22,9 +22,9 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/seata/seata-go/pkg/client"
-	sql2 "github.com/seata/seata-go/pkg/datasource/sql"
-	"github.com/seata/seata-go/pkg/tm"
+	"github.com/apache/seata-go/pkg/client"
+	sql2 "github.com/apache/seata-go/pkg/datasource/sql"
+	"github.com/apache/seata-go/pkg/tm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

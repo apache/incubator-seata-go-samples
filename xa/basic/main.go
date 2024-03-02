@@ -23,8 +23,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/seata/seata-go-samples/util"
-	"github.com/seata/seata-go/pkg/client"
+	"github.com/apache/seata-go-samples/util"
+	"github.com/apache/seata-go/pkg/client"
 )
 
 var db *sql.DB

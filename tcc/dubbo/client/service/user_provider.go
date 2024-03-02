@@ -21,7 +21,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/seata/seata-go/pkg/tm"
+	"github.com/apache/seata-go/pkg/tm"
 )
 
 var UserProviderInstance = NewTwoPhaseDemoService()
