@@ -11,12 +11,8 @@ require (
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
-	seata.apache.org/seata-go v0.0.0-incompatibl
+	seata.apache.org/seata-go v1.2.1-0.20240604133652-ad092d5eb331
 )
-
-// When seata.apache.org/seata-go takes effect,
-// remove the replace section below and update seata.apache.org/seata-go v0.0.0-incompatibl above to the specific version number.
-replace seata.apache.org/seata-go => github.com/seata/seata-go v1.2.1-0.20240604133652-ad092d5eb331
 
 // For local testing only.
 //replace seata.apache.org/seata-go => ../seata-go
