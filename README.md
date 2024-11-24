@@ -46,8 +46,8 @@ System Env Supported:
    original dependency path.
 
    ```
-   //github.com/seata/seata-go v1.0.3
-   github.com/seata/seata-go v0.0.0-incompatibl
+   //github.com/seata/seata-go v1.2.0
+   github.com/seata/seata-go v1.2.0
    ```
 
 2. Find the absolute or relative path to your local code.
@@ -60,7 +60,7 @@ System Env Supported:
 3. Add the replace module to the go.mod file and change it to the local code path.
 
    ```
-   github.com/seata/seata-go =>  ../seata-go
+   seata.apache.org/seata-go =>  ../seata-go
    ```
 
 4. Synchronization dependencies.
