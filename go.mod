@@ -1,4 +1,4 @@
-module github.com/seata/seata-go-samples
+module seata.apache.org/seata-go-samples
 
 go 1.18
 
@@ -7,14 +7,19 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/seata/seata-go v1.2.0
 	google.golang.org/grpc v1.56.3
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
+	seata.apache.org/seata-go v0.0.0-incompatibl
 )
 
-replace seata.apache.org/seata-go => ../seata-go
+// When seata.apache.org/seata-go takes effect,
+// remove the replace section below and update seata.apache.org/seata-go v0.0.0-incompatibl above to the specific version number.
+replace seata.apache.org/seata-go => github.com/seata/seata-go v1.2.1-0.20240604133652-ad092d5eb331
+
+// For local testing only.
+//replace seata.apache.org/seata-go => ../seata-go
 
 require (
 	cloud.google.com/go/compute v1.19.1 // indirect

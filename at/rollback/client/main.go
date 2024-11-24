@@ -22,7 +22,7 @@ import (
 	"flag"
 	"time"
 
-	"github.com/seata/seata-go/pkg/client"
+	"seata.apache.org/seata-go/pkg/client"
 )
 
 var (

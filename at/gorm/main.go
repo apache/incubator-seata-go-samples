@@ -22,11 +22,11 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/seata/seata-go/pkg/client"
-	sql2 "github.com/seata/seata-go/pkg/datasource/sql"
-	"github.com/seata/seata-go/pkg/tm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"seata.apache.org/seata-go/pkg/client"
+	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
+	"seata.apache.org/seata-go/pkg/tm"
 )
 
 type OrderTblModel struct {

@@ -27,10 +27,10 @@ import (
 	"dubbo.apache.org/dubbo-go/v3/config"
 	_ "dubbo.apache.org/dubbo-go/v3/imports"
 
-	"github.com/seata/seata-go-samples/tcc/dubbo/server/service"
-	"github.com/seata/seata-go/pkg/client"
-	"github.com/seata/seata-go/pkg/rm/tcc"
-	"github.com/seata/seata-go/pkg/util/log"
+	"seata.apache.org/seata-go-samples/tcc/dubbo/server/service"
+	"seata.apache.org/seata-go/pkg/client"
+	"seata.apache.org/seata-go/pkg/rm/tcc"
+	"seata.apache.org/seata-go/pkg/util/log"
 )
 
 // need to setup environment variable "DUBBO_GO_CONFIG_PATH" to "conf/dubbogo.yml" before run

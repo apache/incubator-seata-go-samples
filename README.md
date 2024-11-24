@@ -5,7 +5,7 @@
 1. Start the seata-server service with the docker file under the /dockercomposer folder
 
    ```shell
-   git clone https://github.com/seata/seata-go-samples.git
+   git clone https://seata.apache.org/seata-go-samples.git
    ```
 
    ```shell
@@ -46,8 +46,8 @@ System Env Supported:
    original dependency path.
 
    ```
-   //github.com/seata/seata-go v1.2.0
-   github.com/seata/seata-go v1.2.0
+   //seata.apache.org/seata-go v1.2.0
+   seata.apache.org/seata-go v0.0.0-incompatibl
    ```
 
 2. Find the absolute or relative path to your local code.
@@ -73,7 +73,7 @@ System Env Supported:
 
 ## How to use go workspace to test samples for new PR (Recommended)
 
-You can use your local project forked to test new pr that haven't merged into github.com/seata/seata-go.
+You can use your local project forked to test new pr that haven't merged into seata.apache.org/seata-go.
 
 1. Make sure your go version is 1.18 or later.
 

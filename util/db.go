@@ -21,7 +21,7 @@ import (
 	"database/sql"
 	"os"
 
-	sql2 "github.com/seata/seata-go/pkg/datasource/sql"
+	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 )
 
 func GetAtMySqlDb() *sql.DB {

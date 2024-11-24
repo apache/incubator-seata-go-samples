@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/seata/seata-go/pkg/tm"
+	"seata.apache.org/seata-go/pkg/tm"
 )
 
 func insertOnUpdateData(ctx context.Context) error {

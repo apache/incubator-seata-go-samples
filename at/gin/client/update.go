@@ -24,9 +24,9 @@ import (
 	"time"
 
 	"github.com/parnurzeal/gorequest"
-	"github.com/seata/seata-go/pkg/constant"
-	"github.com/seata/seata-go/pkg/tm"
-	"github.com/seata/seata-go/pkg/util/log"
+	"seata.apache.org/seata-go/pkg/constant"
+	"seata.apache.org/seata-go/pkg/tm"
+	"seata.apache.org/seata-go/pkg/util/log"
 )
 
 func updateData(ctx context.Context) (re error) {
