@@ -23,10 +23,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/seata/seata-go/pkg/rm/tcc"
-	"github.com/seata/seata-go/pkg/rm/tcc/fence"
-	"github.com/seata/seata-go/pkg/tm"
-	"github.com/seata/seata-go/pkg/util/log"
+	"seata.apache.org/seata-go/pkg/rm/tcc"
+	"seata.apache.org/seata-go/pkg/rm/tcc/fence"
+	"seata.apache.org/seata-go/pkg/tm"
+	"seata.apache.org/seata-go/pkg/util/log"
 )
 
 const (

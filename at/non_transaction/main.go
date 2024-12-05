@@ -23,8 +23,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/seata/seata-go-samples/util"
-	"github.com/seata/seata-go/pkg/client"
+	"seata.apache.org/seata-go-samples/util"
+	"seata.apache.org/seata-go/pkg/client"
 )
 
 type OrderTbl struct {
