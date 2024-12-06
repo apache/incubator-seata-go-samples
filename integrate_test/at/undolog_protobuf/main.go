@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -42,28 +43,45 @@ type OrderTblModel struct {
 func main() {
 	initConfig()
 
-	// test: protobuf
+	// test: protobuf rollback
 	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx",
+		Name:    "ATSampleLocalGlobalTxByProtobufRollback",
 		Timeout: time.Second * 30,
-	}, insertData)
+	}, insertDataError)
 
 	ctx := context.Background()
 
 	// check
-	if checkData(ctx) != nil {
-		panic("failed")
+	if checkData(ctx, 0) != nil {
+		panic("checkData failed")
 	}
 
 	// wait clean undo log
 	time.Sleep(time.Second * 10)
 	if checkUndoLogData(ctx) != nil {
-		panic("failed")
+		panic("checkUndoLogData failed")
+	}
+
+	// test: protobuf commit
+	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTxByProtobufCommit",
+		Timeout: time.Second * 30,
+	}, insertData)
+
+	// check
+	if checkData(ctx, 1) != nil {
+		panic("checkData failed")
+	}
+
+	// wait clean undo log
+	time.Sleep(time.Second * 10)
+	if checkUndoLogData(ctx) != nil {
+		panic("checkUndoLogData failed")
 	}
 }
 
 func initConfig() {
-	client.InitPath("./conf/seatago.yml")
+	client.InitPath("./integrate_test/at/undolog_protobuf/seatago.yml")
 	initDB()
 }
 
@@ -82,10 +100,10 @@ func initDB() {
 
 func getData() OrderTblModel {
 	return OrderTblModel{
-		UserId:        "NO-100003",
-		CommodityCode: "C100001",
-		Count:         101,
-		Money:         11,
+		UserId:        "NO-100004",
+		CommodityCode: "C100002",
+		Count:         102,
+		Money:         12,
 		Descs:         "insert desc",
 	}
 }
@@ -97,14 +115,21 @@ func insertData(ctx context.Context) error {
 	return gormDB.WithContext(ctx).Table("order_tbl").Create(&data).Error
 }
 
-func checkData(ctx context.Context) error {
+func insertDataError(ctx context.Context) error {
+	data := getData()
+	gormDB.WithContext(ctx).Table("order_tbl").Create(&data)
+
+	return errors.New("insert data failed")
+}
+
+func checkData(ctx context.Context, expectCount int64) error {
 	query := getData()
 	var count int64
 	err := gormDB.WithContext(ctx).Table("order_tbl").Where(query).Count(&count).Error
 	if err != nil {
 		return err
 	}
-	if count != 1 {
+	if count != expectCount {
 		return fmt.Errorf("check data failed")
 	}
 	return nil
