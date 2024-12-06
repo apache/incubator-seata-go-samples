@@ -17,6 +17,7 @@
 
 # tests
 array+=("integrate_test/at/insert")
+array+=("integrate_test/at/undolog_protobuf")
 
 
 
