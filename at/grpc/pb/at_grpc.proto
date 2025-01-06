@@ -17,20 +17,14 @@
 
 syntax = "proto3";
 option go_package="./";
-import "google/protobuf/any.proto";
 import "google/protobuf/wrappers.proto";
 
 message Params {
-    string a = 1;
-    string b = 2;
+  string a = 1;
+  string b = 2;
 }
 
-service TCCServiceBusiness1 {
-    rpc Remoting (Params) returns (google.protobuf.BoolValue){
-    }
-}
-
-service TCCServiceBusiness2 {
-    rpc Remoting (Params) returns (google.protobuf.Any){
-    }
+service ATServiceBusiness {
+  rpc UpdateDataSuccess (Params) returns (google.protobuf.BoolValue){
+  }
 }
