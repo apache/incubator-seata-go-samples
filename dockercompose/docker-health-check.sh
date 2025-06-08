@@ -15,16 +15,34 @@
 # limitations under the License.
 #
 
-curl 127.0.0.1:7091
-res=$?
+#!/bin/bash
+
+echo "Checking Seata server..."
+res=1
 passCode=0
-while [ "$res" != "$passCode" ];do
-  echo "wait seata server"
+while [ "$res" != "$passCode" ]; do
+  echo "Waiting for Seata server..."
   sleep 5
-  curl 127.0.0.1:7091
+  curl -s -o /dev/null 127.0.0.1:7091
   res=$?
 done
 
-sleep 10
+echo "Seata server is up!"
 
+CONTAINER_NAME="mysql"
+MYSQL_USER="root"
+MYSQL_PASS="12345678"
+
+echo "Checking MySQL container..."
+res=1
+while [ "$res" != "0" ]; do
+  if docker exec "$CONTAINER_NAME" mysql -u "$MYSQL_USER" -p"$MYSQL_PASS" -e "SELECT 1;" >/dev/null 2>&1; then
+      res=0
+  else
+      echo "Waiting for MySQL container..."
+      sleep 5
+  fi
+done
+
+echo "MySQL container is up!"
 
