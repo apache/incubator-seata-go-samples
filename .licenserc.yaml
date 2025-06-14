@@ -54,14 +54,13 @@ header: # `header` section is configurations for source codes license header.
     - '**'
 
   paths-ignore: # `paths-ignore` are the path list that will be ignored by license-eye.
-    - 'licenses'
     - '**/go.mod'
     - '**/go.sum'
     - 'LICENSE'
     - 'DISCLAIMER'
     - 'NOTICE'
     - '.github'
-  comment: on-failure # on what condition license-eye will comment on the pull request, `on-failure`, `always`, `never`.
+  comment: on-failure
 
   language:
     Go:
