@@ -17,11 +17,13 @@
 name: License checker
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-      branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  check-license:
+  build:
     runs-on: ubuntu-latest
     steps:
       # step 1 clear cache
