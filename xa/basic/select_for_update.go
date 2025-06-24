@@ -42,7 +42,7 @@ func selectForUpdateData(ctx context.Context) error {
 }
 
 func sampleSelectForUpdate(ctx context.Context) {
-	tm.WithGlobalTx(ctx, &tm.GtxConfig{
+	_ = tm.WithGlobalTx(ctx, &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx_SelectForUpdate",
 		Timeout: time.Second * 30,
 	}, selectForUpdateData)

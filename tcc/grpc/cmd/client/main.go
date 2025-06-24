@@ -42,12 +42,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 	c1, c2 := pb.NewTCCServiceBusiness1Client(conn), pb.NewTCCServiceBusiness2Client(conn)
 
 	client.InitPath("../../../../conf/seatago.yml")
 
-	tm.WithGlobalTx(
+	_ = tm.WithGlobalTx(
 		context.Background(),
 		&tm.GtxConfig{
 			Name: "TccSampleLocalGlobalTx",

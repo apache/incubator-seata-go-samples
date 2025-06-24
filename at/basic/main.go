@@ -43,6 +43,12 @@ func main() {
 	// sample: select for udpate
 	sampleSelectForUpdate(ctx)
 
+	// updateData
+	_ = updateData(ctx)
+
+	// deleteData
+	_ = deleteData(ctx)
+
 	<-make(chan struct{})
 }
 

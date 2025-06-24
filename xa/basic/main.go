@@ -38,10 +38,16 @@ func main() {
 	sampleInsert(ctx)
 
 	// sample: insert on update
-	//sampleInsertOnUpdate(ctx)
+	sampleInsertOnUpdate(ctx)
 
-	// sample: select for udpate
-	//sampleSelectForUpdate(ctx)
+	// sample: select for update
+	sampleSelectForUpdate(ctx)
+
+	// deleteData
+	_ = deleteData(ctx)
+
+	// deleteData
+	_ = updateData(ctx)
 
 	<-make(chan struct{})
 }

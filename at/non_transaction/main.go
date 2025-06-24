@@ -51,21 +51,21 @@ func main() {
 
 	insertId := insertData()
 
-	// insertDuplicateData(insertId)
+	insertDuplicateData(insertId)
 
 	selectData(insertId)
 
-	updateData(insertId)
+	_ = updateData(insertId)
 
 	selectData(insertId)
 
-	deleteData(insertId)
+	_ = deleteData(insertId)
 
 	selectData(insertId)
 
 	userIds := batchInsertData()
 
-	batchDeleteData(userIds)
+	_ = batchDeleteData(userIds)
 
 	<-make(chan struct{})
 }

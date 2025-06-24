@@ -37,7 +37,7 @@ func main() {
 	defer cancel()
 	serverIpPort := "http://127.0.0.1:8080"
 
-	tm.WithGlobalTx(
+	err := tm.WithGlobalTx(
 		bgCtx,
 		&tm.GtxConfig{
 			Name: "TccSampleLocalGlobalTx",
@@ -54,4 +54,7 @@ func main() {
 				})
 			return
 		})
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 }

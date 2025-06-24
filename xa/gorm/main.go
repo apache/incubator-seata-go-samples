@@ -41,11 +41,25 @@ type OrderTblModel struct {
 func main() {
 	initConfig()
 	// insert
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+	_ = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
 		Timeout: time.Second * 30,
 	}, insertData)
-	<-make(chan struct{})
+	time.Sleep(time.Second * 40)
+
+	// updateData
+	_ = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx",
+		Timeout: time.Second * 30,
+	}, updateData)
+	time.Sleep(time.Second * 40)
+
+	// deleteData
+	_ = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx",
+		Timeout: time.Second * 30,
+	}, deleteData)
+	time.Sleep(time.Second * 40)
 }
 
 func initConfig() {
@@ -66,6 +80,9 @@ func initDB() {
 	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+	if err != nil {
+		panic("open DB error")
+	}
 }
 
 // insertData insert one data
