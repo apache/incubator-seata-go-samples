@@ -43,7 +43,7 @@ func insertOnUpdateData(ctx context.Context) error {
 }
 
 func sampleInsertOnUpdate(ctx context.Context) {
-	tm.WithGlobalTx(ctx, &tm.GtxConfig{
+	_ = tm.WithGlobalTx(ctx, &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx_InsertOnUpdate",
 		Timeout: time.Second * 30,
 	}, insertOnUpdateData)

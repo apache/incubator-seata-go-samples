@@ -21,6 +21,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -43,10 +44,15 @@ func main() {
 	initConfig()
 
 	// test: insert
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+	err := tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "ATSampleLocalGlobalTx",
 		Timeout: time.Second * 30,
 	}, insertData)
+
+	if err != nil {
+		log.Fatalf("failed to init transaction: %v", err)
+		return
+	}
 
 	ctx := context.Background()
 
@@ -78,6 +84,9 @@ func initDB() {
 	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+	if err != nil {
+		panic("open DB error")
+	}
 }
 
 func getData() OrderTblModel {

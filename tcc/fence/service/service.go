@@ -40,12 +40,6 @@ var (
 
 	tccService2     *tcc.TCCServiceProxy
 	tccService2Once sync.Once
-
-	commitTimes      int
-	commitFenceTimes int
-
-	rollbackTimes      int
-	rollbackFenceTimes int
 )
 
 type TestTCCServiceBusiness struct{}
@@ -69,7 +63,9 @@ func (T TestTCCServiceBusiness) Prepare(ctx context.Context, params interface{})
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())
@@ -96,7 +92,9 @@ func (T TestTCCServiceBusiness) Commit(ctx context.Context, businessActionContex
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())
@@ -123,7 +121,9 @@ func (T TestTCCServiceBusiness) Rollback(ctx context.Context, businessActionCont
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())
@@ -173,7 +173,9 @@ func (T TestTCCServiceBusiness2) Prepare(ctx context.Context, params interface{}
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())
@@ -200,7 +202,9 @@ func (T TestTCCServiceBusiness2) Commit(ctx context.Context, businessActionConte
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())
@@ -227,7 +231,9 @@ func (T TestTCCServiceBusiness2) Rollback(ctx context.Context, businessActionCon
 	if err != nil {
 		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 	tx, err := db.Begin()
 	if err != nil {
 		return false, fmt.Errorf("transaction begin failed, msg :%s", err.Error())

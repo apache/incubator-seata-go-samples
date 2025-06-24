@@ -41,11 +41,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 	businessClient := __.NewATServiceBusinessClient(conn)
 
 	client.InitPath("../../../../conf/seatago.yml")
-	tm.WithGlobalTx(
+	_ = tm.WithGlobalTx(
 		context.Background(),
 		&tm.GtxConfig{
 			Name: "XASampleLocalGlobalTx",

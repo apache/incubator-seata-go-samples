@@ -28,7 +28,7 @@ import (
 
 func main() {
 	client.InitPath("../../../conf/seatago.yml")
-	tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+	_ = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name: "TccSampleLocalGlobalTx",
 	}, business)
 	<-make(chan struct{})
