@@ -32,7 +32,7 @@ name: CodeQL
 on:
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: "*"
+    branches: ["*"]
 
 permissions:
   contents: read
@@ -41,8 +41,8 @@ jobs:
   analyse:
     permissions:
       actions: read # for github/codeql-action/init to get workflow details
-      contents: read  # for actions/checkout to fetch code
-      security-events: write  # for github/codeql-action/autobuild to send a status report
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/autobuild to send a status report
     name: Analyse
     runs-on: ubuntu-latest
 
@@ -66,4 +66,3 @@ jobs:
       # Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
-
