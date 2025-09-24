@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +12,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local github.com/seata/seata-go -w .
+# Seata-go client config (placeholders; update to your environment)
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
+seata:
+  enabled: true
+  application-id: "saga-e2e-app"
+  tx-service-group: "default_tx_group"
 
-# format go.mod
-go mod tidy
+  client:
+    rm:
+      saga-branch-register-enable: true
+    tm: {}
+
+  service:
+    vgroup-mapping:
+      default_tx_group: "default"
+    grouplist:
+      default: "127.0.0.1:8091"
+
+  transport:
+    type: TCP
+    server: NIO
+    heartbeat: true
+
+  getty:
+    reconnect-interval: 1
+    connection-num: 1
+    session:
+      compress-encoding: false
+      tcp-no-delay: true
+      keep-alive-period: 180

@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local github.com/seata/seata-go -w .
+set -euo pipefail
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
+SEATA_CONF=${1:-saga/e2e/seatago.yaml}
+ENGINE_CONF=${2:-saga/e2e/config.yaml}
 
-# format go.mod
-go mod tidy
+echo "Running saga e2e with seataConf=$SEATA_CONF engineConf=$ENGINE_CONF"
+go run ./saga/e2e -seataConf="$SEATA_CONF" -engineConf="$ENGINE_CONF"

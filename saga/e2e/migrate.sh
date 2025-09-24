@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local github.com/seata/seata-go -w .
+set -euo pipefail
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
+if [ -z "${MYSQL_HOST:-}" ] || [ -z "${MYSQL_PORT:-}" ] || [ -z "${MYSQL_USER:-}" ] || [ -z "${MYSQL_PWD:-}" ] || [ -z "${MYSQL_DB:-}" ]; then
+  echo "Please set MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PWD, MYSQL_DB"
+  exit 1
+fi
 
-# format go.mod
-go mod tidy
+echo "Applying schema to $MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB ..."
+mysql -h"$MYSQL_HOST" -P"$MYSQL_PORT" -u"$MYSQL_USER" -p"$MYSQL_PWD" "$MYSQL_DB" < saga/e2e/sql/mysql_saga_schema.sql
+echo "Schema applied."

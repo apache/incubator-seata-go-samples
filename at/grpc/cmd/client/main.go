@@ -21,6 +21,7 @@ package main
 import (
 	"context"
 	"flag"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	__ "seata.apache.org/seata-go-samples/at/grpc/pb"

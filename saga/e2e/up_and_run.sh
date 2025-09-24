@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +13,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local github.com/seata/seata-go -w .
+set -euo pipefail
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
+DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-# format go.mod
-go mod tidy
+echo "Resetting docker-compose services (MySQL + Seata Server)..."
+docker-compose -f "$DIR/docker-compose.yml" down -v --remove-orphans || true
+docker-compose -f "$DIR/docker-compose.yml" rm -f -s -v || true
+echo "Starting docker-compose services (fresh)..."
+docker-compose -f "$DIR/docker-compose.yml" up -d --force-recreate
+
+echo "Waiting for MySQL (3306) and Seata Server (8091) to be ready..."
+# simple wait loop
+for i in {1..60}; do
+  nc -z 127.0.0.1 3306 && nc -z 127.0.0.1 8091 && break || true
+  sleep 2
+done
+
+echo "Running saga e2e example"
+go run ./saga/e2e -seataConf="$DIR/seatago.yaml" -engineConf="$DIR/config.yaml"

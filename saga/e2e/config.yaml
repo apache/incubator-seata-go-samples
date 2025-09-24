@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +12,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local github.com/seata/seata-go -w .
+# Engine runtime config (loaded by DefaultStateMachineConfig)
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
+trans_operation_timeout: 60000
+service_invoke_timeout: 5000
+rm_report_success_enable: true
+saga_branch_register_enable: true
 
-# format go.mod
-go mod tidy
+# Register JSON resources (update path if you move files)
+state_machine_resources:
+  - saga/e2e/statelang/*.json
+
+# Enable MySQL store (fill in your DSN)
+store_enabled: true
+store_type: mysql
+store_dsn: "root:secret@tcp(127.0.0.1:3306)/seata_saga?parseTime=true"
+
+# Enable TC integration
+tc_enabled: true
