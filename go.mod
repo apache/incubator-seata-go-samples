@@ -173,4 +173,4 @@ require (
 
 // replace github.com/knadh/koanf => github.com/knadh/koanf/v2 v2.1.2
 
-replace github.com/seata/seata-go => ../incubator-seata-go
+//replace github.com/seata/seata-go => ../incubator-seata-go
