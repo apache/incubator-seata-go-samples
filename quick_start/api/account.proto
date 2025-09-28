@@ -15,38 +15,24 @@
  * limitations under the License.
  */
 
-package service
+syntax = "proto3";
+option go_package="seata.apache.org/seata-go/sample/quick_start/pb";
 
-import (
-	"context"
-	"gorm.io/gorm"
-	"seata.apache.org/seata-go-samples/quick_start/model"
-	"time"
-)
-
-type OrderService struct {
-	db *gorm.DB
+message AccountDeductRequest {
+  string user_id = 1;
+  int64 money = 2;
 }
 
-func NewOrderDao(db *gorm.DB) *OrderService {
-	return &OrderService{db: db}
+message AccountQueryRequest {
+  string user_id = 1;
 }
 
-func (o *OrderService) Create(ctx context.Context, order model.Order) (int64, error) {
-	now := time.Now().Unix()
-	order.Ctime = now
-	order.Utime = now
-	err := o.db.WithContext(ctx).Create(order).Error
-	if err != nil {
-		return 0, err
-	}
-	return order.ID, nil
+message AccountResponse {
+  string user_id = 1;
+  int64 balance = 2;
+  int64 freeze_amount = 3;
 }
 
-func (o *OrderService) Delete(ctx context.Context, id int64) error {
-	return o.db.WithContext(ctx).
-		Model(&model.Order{}).
-		Where("id = ?", id).
-		Update("is_deleted", "true").
-		Error
+service AccountService {
+  rpc Deduct (AccountDeductRequest) returns (AccountResponse);
 }

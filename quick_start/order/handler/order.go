@@ -20,8 +20,8 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"seata.apache.org/seata-go-samples/quick_start/model"
-	"seata.apache.org/seata-go-samples/quick_start/service"
+	"seata.apache.org/seata-go-samples/quick_start/order/model"
+	"seata.apache.org/seata-go-samples/quick_start/order/service"
 )
 
 type OrderHandler struct {
@@ -37,7 +37,6 @@ func NewOrderHandler(svc *service.OrderService) *OrderHandler {
 func (o *OrderHandler) Route(engine *gin.Engine) {
 	group := engine.Group("/order")
 	group.POST("/create", o.Create)
-	group.DELETE("/delete/:id", o.Delete)
 }
 
 func (o *OrderHandler) Create(ctx *gin.Context) {
@@ -54,18 +53,6 @@ func (o *OrderHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, Message{
 		Code: http.StatusOK,
 		Data: id,
-	})
-}
-
-func (o *OrderHandler) Delete(ctx *gin.Context) {
-	id := ctx.GetInt64("id")
-	err := o.svc.Delete(ctx, id)
-	if err != nil {
-		ctx.String(http.StatusInternalServerError, "internal error")
-		return
-	}
-	ctx.JSON(http.StatusOK, Message{
-		Msg: "success",
 	})
 }
 
