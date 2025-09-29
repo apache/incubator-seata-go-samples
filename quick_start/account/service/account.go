@@ -19,7 +19,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -35,25 +34,15 @@ func NewAccountService(db *gorm.DB) *AccountService {
 }
 
 func (a *AccountService) Deduct(ctx context.Context, account model.Account) error {
-	var userAccount model.Account
-	err := a.db.WithContext(ctx).Where("user_id = ?", account.UserID).First(&userAccount).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("account not found for user_id: %d", account.UserID)
-		}
-		return fmt.Errorf("failed to query account: %w", err)
-	}
+	result := a.db.WithContext(ctx).Model(&model.Account{}).
+		Where("user_id = ? AND balance >= ?", account.UserID, account.Balance).
+		UpdateColumn("balance", gorm.Expr("balance - ?", account.Balance))
 
-	if userAccount.Balance < account.Balance {
-		return fmt.Errorf("insufficient balance: current balance %d, required %d", userAccount.Balance, account.Balance)
+	if result.Error != nil {
+		return fmt.Errorf("failed to deduct balance: %w", result.Error)
 	}
-	// 计算扣减后的新余额
-	newBalance := userAccount.Balance - account.Balance
-	err = a.db.WithContext(ctx).Model(&model.Account{}).
-		Where("user_id = ?", account.UserID).
-		Update("balance", newBalance).Error
-	if err != nil {
-		return fmt.Errorf("failed to deduct balance: %w", err)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("insufficient balance or account not found for user_id: %d", account.UserID)
 	}
 	return nil
 }

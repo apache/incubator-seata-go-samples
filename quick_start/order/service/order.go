@@ -73,12 +73,3 @@ func (o *OrderService) Create(ctx context.Context, order model.Order) (int64, er
 	})
 	return order.ID, err
 }
-
-func (o *OrderService) Get(ctx context.Context, id int64) (model.Order, error) {
-	var order model.Order
-	err := o.db.WithContext(ctx).First(&order, id).Error
-	if err != nil {
-		return order, fmt.Errorf("failed to get order: %w", err)
-	}
-	return order, nil
-}
