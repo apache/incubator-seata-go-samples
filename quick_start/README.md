@@ -5,13 +5,41 @@ This example project demonstrates how to use Seatago to implement distributed tr
 1. Account Service – manages user account balance
 2. Order  Service – creates orders and coordinates money deduction via Seatago AT mode
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant OrderSvc
+    participant Seatago
+    participant AccountSvc
+    participant MySQL
+
+    Client->>OrderSvc: POST /orders
+    activate OrderSvc
+    OrderSvc->>Seatago: Begin GlobalTx
+    Seatago-->>OrderSvc: XID
+    OrderSvc->>MySQL: INSERT order (branch 1)
+    OrderSvc->>AccountSvc: Deduct balance (branch 2)
+    activate AccountSvc
+    AccountSvc->>MySQL: UPDATE balance
+    AccountSvc-->>OrderSvc: OK
+    deactivate AccountSvc
+    OrderSvc->>Seatago: Commit GlobalTx
+    Seatago->>MySQL: Commit branch 1 & 2
+    Seatago-->>OrderSvc: GlobalTx committed
+    OrderSvc-->>Client: Order Created (200)
+    deactivate OrderSvc
+```
+
+
 Directory layout
 ----------------
+```
 quick_start/
 ├── api/          # Protobuf definitions and generated code
 ├── account/      # Account service implementation
 ├── order/        # Order service implementation
 └── README.md     # (this file)
+```
 
 Prerequisites
 -------------

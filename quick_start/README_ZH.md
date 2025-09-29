@@ -155,7 +155,7 @@ s := grpc.NewServer(grpc.UnaryInterceptor(seatagrpc.ServerTransactionInterceptor
 pb.RegisterAccountServiceServer(s, server.NewAccountServer(accountService))
 ```
 
-当时本地也会有一个数据库事务:
+当然本地也会有一个数据库事务:
 ```go
 err := accountService.Deduct(ctx, req)
 ```
