@@ -18,25 +18,34 @@
 package main
 
 import (
-	"time"
+	"fmt"
+	"net"
 
-	"github.com/gin-gonic/gin"
-	"seata.apache.org/seata-go-samples/quick_start/order/handler"
-	"seata.apache.org/seata-go-samples/quick_start/order/service"
-	"seata.apache.org/seata-go/pkg/tm"
+	"google.golang.org/grpc"
+	"seata.apache.org/seata-go-samples/quick_start/account/server"
+	"seata.apache.org/seata-go-samples/quick_start/account/service"
+	pb "seata.apache.org/seata-go-samples/quick_start/api"
+	seatagrpc "seata.apache.org/seata-go/pkg/integration/grpc"
+	"seata.apache.org/seata-go/pkg/util/log"
 )
 
-func newService() *service.OrderService {
-	return service.NewOrderService(gormDB, &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx",
-		Timeout: 100 * time.Second,
-	})
+func newService() *service.AccountService {
+	return service.NewAccountService(gormDB)
 }
 
 func main() {
 	initConfig()
-	web := handler.NewOrderHandler(newService())
-	engine := gin.Default()
-	web.Route(engine)
-	engine.Run(":8080")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	accountService := newService()
+
+	s := grpc.NewServer(grpc.UnaryInterceptor(seatagrpc.ServerTransactionInterceptor))
+	pb.RegisterAccountServiceServer(s, server.NewAccountServer(accountService))
+	log.Infof("business listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

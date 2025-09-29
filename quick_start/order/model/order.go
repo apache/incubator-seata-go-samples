@@ -17,6 +17,8 @@
 
 package model
 
+import "gorm.io/gorm"
+
 type Order struct {
 	ID            int64  `gorm:"primaryKey;autoIncrement;column:id"`
 	UserID        string `gorm:"column:user_id;type:varchar(255)"`
@@ -30,4 +32,10 @@ type Order struct {
 
 func (Order) TableName() string {
 	return "orders"
+}
+
+func InitTable(db *gorm.DB) {
+	if err := db.AutoMigrate(&Order{}); err != nil {
+		panic("init table error")
+	}
 }

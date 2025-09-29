@@ -15,36 +15,38 @@
  * limitations under the License.
  */
 
-package cmd
+package main
 
 import (
 	"database/sql"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"seata.apache.org/seata-go-samples/quick_start/order/model"
+	"seata.apache.org/seata-go/pkg/client"
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
-	"sync"
 )
 
-var (
-	gormDB *gorm.DB
-	dbOnce sync.Once
-)
+var gormDB *gorm.DB
 
-func DB() {
-	dbOnce.Do(func() {
-		sqlDB, err := sql.Open(
-			sql2.SeataXAMySQLDriver,
-			"root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
-		if err != nil {
-			panic("init service error")
-		}
+func initConfig() {
+	client.InitPath("../../../conf/seatago.yml")
+	initDB()
+}
 
-		gormDB, err = gorm.Open(mysql.New(mysql.Config{
-			Conn: sqlDB,
-		}), &gorm.Config{})
-
-		if err != nil {
-			panic("failed to create the db")
-		}
+func initDB() {
+	db, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	if err != nil {
+		panic("init service error")
+	}
+	gormDB, err = gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
 	})
+	if err != nil {
+		panic("open DB error")
+	}
+	model.InitTable(gormDB)
 }

@@ -54,22 +54,31 @@ func NewOrderService(db *gorm.DB, config *tm.GtxConfig) *OrderService {
 
 func (o *OrderService) Create(ctx context.Context, order model.Order) (int64, error) {
 	err := tm.WithGlobalTx(ctx, o.config, func(ctx context.Context) error {
-		_, err := o.accountClient.Deduct(ctx, &pb.AccountDeductRequest{
+		now := time.Now().Unix()
+		order.Ctime = now
+		order.Utime = now
+		err := o.db.WithContext(ctx).Create(&order).Error
+		if err != nil {
+			return fmt.Errorf("failed to create order: %w", err)
+		}
+
+		_, err = o.accountClient.Deduct(ctx, &pb.AccountDeductRequest{
 			UserId: order.UserID,
 			Money:  order.Money,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to deduct account balance: %w", err)
 		}
-
-		now := time.Now().Unix()
-		order.Ctime = now
-		order.Utime = now
-		err = o.db.WithContext(ctx).Create(order).Error
-		if err != nil {
-			return fmt.Errorf("failed to create order: %w", err)
-		}
 		return nil
 	})
 	return order.ID, err
+}
+
+func (o *OrderService) Get(ctx context.Context, id int64) (model.Order, error) {
+	var order model.Order
+	err := o.db.WithContext(ctx).First(&order, id).Error
+	if err != nil {
+		return order, fmt.Errorf("failed to get order: %w", err)
+	}
+	return order, nil
 }

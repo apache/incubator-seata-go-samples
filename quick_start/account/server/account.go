@@ -15,6 +15,12 @@ type AccountServer struct {
 	pb.UnimplementedAccountServiceServer
 }
 
+func NewAccountServer(svc *service.AccountService) *AccountServer {
+	return &AccountServer{
+		svc: svc,
+	}
+}
+
 func (a *AccountServer) Deduct(ctx context.Context, request *pb.AccountDeductRequest) (*pb.AccountResponse, error) {
 	userID, err := strconv.ParseInt(request.UserId, 10, 64)
 	if err != nil {

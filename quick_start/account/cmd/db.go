@@ -19,17 +19,34 @@ package main
 
 import (
 	"database/sql"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"seata.apache.org/seata-go-samples/quick_start/account/model"
+	"seata.apache.org/seata-go/pkg/client"
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 )
 
-var (
-	db *sql.DB
-)
+var gormDB *gorm.DB
 
-func InitService() {
-	var err error
-	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+func initConfig() {
+	client.InitPath("../../../conf/seatago.yml")
+	initDB()
+}
+
+func initDB() {
+	db, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client1?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
+	gormDB, err = gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		panic("open DB error")
+	}
+	model.InitTable(gormDB)
 }

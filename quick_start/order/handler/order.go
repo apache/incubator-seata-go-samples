@@ -18,10 +18,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"seata.apache.org/seata-go-samples/quick_start/order/model"
 	"seata.apache.org/seata-go-samples/quick_start/order/service"
+	"seata.apache.org/seata-go/pkg/util/log"
 )
 
 type OrderHandler struct {
@@ -48,6 +50,7 @@ func (o *OrderHandler) Create(ctx *gin.Context) {
 	id, err := o.svc.Create(ctx, o.toModel(order))
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "internal error")
+		log.Errorf("create order error: %v", err)
 		return
 	}
 	ctx.JSON(http.StatusOK, Message{
@@ -58,7 +61,9 @@ func (o *OrderHandler) Create(ctx *gin.Context) {
 
 func (o *OrderHandler) toModel(order Order) model.Order {
 	return model.Order{
-		UserID: order.UserID,
-		Money:  order.Money,
+		UserID:        order.UserID,
+		Money:         order.Money,
+		Count:         order.Count,
+		CommodityCode: order.CommodityCode,
 	}
 }
