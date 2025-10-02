@@ -37,3 +37,28 @@ services:
       - ./mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     ports:
       - "3306:3306"
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.1.4
+    container_name: rocketmq-namesrv
+    ports:
+      - "9876:9876"
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+    command: sh mqnamesrv
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.1.4
+    container_name: rocketmq-broker
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+      - "10912:10912"
+    environment:
+      - NAMESRV_ADDR=rocketmq-namesrv:9876
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+    command: sh mqbroker -c /home/rocketmq/broker.conf
+    volumes:
+      - ./rocketmq/broker.conf:/home/rocketmq/broker.conf
+    depends_on:
+      - rocketmq-namesrv

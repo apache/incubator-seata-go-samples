@@ -21,7 +21,8 @@ package main
 import (
 	"fmt"
 	"net"
-	"seata.apache.org/seata-go-samples/at/grpc/pb"
+
+	__ "seata.apache.org/seata-go-samples/at/grpc/pb"
 	"seata.apache.org/seata-go/pkg/client"
 
 	"google.golang.org/grpc"
