@@ -19,7 +19,10 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"path/filepath"
 
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -31,14 +34,35 @@ import (
 var gormDB *gorm.DB
 
 func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	configPath, err := filepath.Abs("../config")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to get config file path: %v", err))
+	}
+	viper.AddConfigPath(configPath)
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Sprintf("Failed to read config file: %v", err))
+	}
 	client.InitPath("../../../conf/seatago.yml")
 	initDB()
 }
 
 func initDB() {
-	db, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	host := viper.GetString("database.host")
+	port := viper.GetString("database.port")
+	username := viper.GetString("database.username")
+	password := viper.GetString("database.password")
+	dbname := viper.GetString("database.dbname")
+	params := viper.GetString("database.params")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?%s", username, password, host, port, dbname, params)
+
+	db, err := sql.Open(sql2.SeataATMySQLDriver, dsn)
 	if err != nil {
-		panic("init service error")
+		panic("Failed to initialize service")
 	}
 	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
@@ -46,7 +70,7 @@ func initDB() {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		panic("open DB error")
+		panic("Failed to open database")
 	}
 	model.InitTable(gormDB)
 }
