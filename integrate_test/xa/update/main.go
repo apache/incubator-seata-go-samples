@@ -1,0 +1,138 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"seata.apache.org/seata-go-samples/util"
+	"seata.apache.org/seata-go/pkg/client"
+	"seata.apache.org/seata-go/pkg/tm"
+)
+
+type OrderTblModel struct {
+	Id            int64  `gorm:"column:id" json:"id"`
+	UserId        string `gorm:"column:user_id" json:"user_id"`
+	CommodityCode string `gorm:"commodity_code" json:"commodity_code"`
+	Count         int64  `gorm:"count" json:"count"`
+	Money         int64  `gorm:"money" json:"money"`
+	Descs         string `gorm:"descs" json:"descs"`
+}
+
+func main() {
+	initConfig()
+
+	ctx := context.Background()
+
+	err := prepareData(ctx)
+	if err != nil {
+		log.Fatalf("failed to prepare data: %v", err)
+		return
+	}
+
+	err = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
+		Name:    "XASampleLocalGlobalTx_Update",
+		Timeout: time.Second * 30,
+	}, updateData)
+
+	if err != nil {
+		log.Fatalf("failed to init transaction: %v", err)
+		return
+	}
+
+	if checkData(ctx) != nil {
+		panic("failed")
+	}
+
+	log.Println("XA update integration test passed successfully")
+}
+
+func initConfig() {
+	client.InitPath("./conf/seatago.yml")
+	initDB()
+}
+
+var gormDB *gorm.DB
+
+func initDB() {
+	sqlDB := util.GetXAMySqlDb()
+
+	var err error
+	gormDB, err = gorm.Open(mysql.New(mysql.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
+	if err != nil {
+		panic("open DB error")
+	}
+}
+
+func getPrepareData() OrderTblModel {
+	return OrderTblModel{
+		Id:            100,
+		UserId:        "NO-100004",
+		CommodityCode: "C100002",
+		Count:         50,
+		Money:         500,
+		Descs:         "original desc",
+	}
+}
+
+func getUpdatedDescs() string {
+	return fmt.Sprintf("updated desc at %d", time.Now().Unix())
+}
+
+func prepareData(ctx context.Context) error {
+	gormDB.WithContext(ctx).Table("order_tbl").Where("id = ?", 100).Delete(&OrderTblModel{})
+
+	data := getPrepareData()
+	return gormDB.WithContext(ctx).Table("order_tbl").Create(&data).Error
+}
+
+func updateData(ctx context.Context) error {
+	newDescs := getUpdatedDescs()
+	return gormDB.WithContext(ctx).Table("order_tbl").
+		Where("id = ?", 100).
+		Update("descs", newDescs).Error
+}
+
+func checkData(ctx context.Context) error {
+	var order OrderTblModel
+	err := gormDB.WithContext(ctx).Table("order_tbl").Where("id = ?", 100).First(&order).Error
+	if err != nil {
+		return err
+	}
+
+	if order.Descs == "original desc" {
+		return fmt.Errorf("check data failed: data was not updated")
+	}
+
+	prepareData := getPrepareData()
+	if order.UserId != prepareData.UserId ||
+		order.CommodityCode != prepareData.CommodityCode ||
+		order.Count != prepareData.Count ||
+		order.Money != prepareData.Money {
+		return fmt.Errorf("check data failed: unexpected data changes")
+	}
+
+	return nil
+}
