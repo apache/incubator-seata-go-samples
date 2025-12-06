@@ -26,9 +26,6 @@ require (
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 )
 
-// For local testing only.
-//replace seata.apache.org/seata-go => ../seata-go
-
 require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
@@ -171,6 +168,5 @@ require (
 	vimagination.zapto.org/byteio v0.0.0-20200222190125-d27cba0f0b10 // indirect
 )
 
-// replace github.com/knadh/koanf => github.com/knadh/koanf/v2 v2.1.2
-
+// For local testing only.
 //replace github.com/seata/seata-go => ../incubator-seata-go
