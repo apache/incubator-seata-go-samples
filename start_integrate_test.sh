@@ -18,7 +18,9 @@
 # tests
 array+=("integrate_test/at/insert")
 
-
+array+=("integrate_test/tcc/insert")
+array+=("integrate_test/tcc/insert_on_update")
+array+=("integrate_test/tcc/select_on_update")
 
 
 DOCKER_DIR=$(pwd)/dockercompose
