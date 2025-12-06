@@ -86,7 +86,7 @@ func (t *TCCInsertOnUpdateService) GetActionName() string {
 }
 
 func initDB() {
-	sqlDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3307)/seata_client?parseTime=true")
+	sqlDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/seata_client?parseTime=true")
 	if err != nil {
 		panic(err)
 	}
