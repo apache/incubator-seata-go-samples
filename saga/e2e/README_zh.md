@@ -37,14 +37,14 @@ sample 仓库当前依赖发布版的 seata-go。如需在调试时直接复用
 `../incubator-seata-go` 的最新代码，可在运行前临时添加 replace：
 
 ```
-go mod edit -replace github.com/seata/seata-go=../incubator-seata-go
+go mod edit -replace seata.apache.org/seata-go=../incubator-seata-go
 go mod tidy # 依赖有变更时执行
 ```
 
 执行完成后建议移除 replace，保持 go.mod 干净：
 
 ```
-go mod edit -dropreplace github.com/seata/seata-go
+go mod edit -dropreplace seata.apache.org/seata-go
 ```
 
 如果使用 Go 1.18+，也可以临时创建 workspace：

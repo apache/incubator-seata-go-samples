@@ -126,7 +126,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
-	github.com/seata/seata-go v1.2.1-0.20240604133652-ad092d5eb331
+	seata.apache.org/seata-go v1.2.1-0.20240604133652-ad092d5eb331
 	github.com/shirou/gopsutil/v3 v3.22.2 // indirect
 	github.com/sijms/go-ora/v2 v2.5.17 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -169,4 +169,4 @@ require (
 )
 
 // For local testing only.
-//replace github.com/seata/seata-go => ../incubator-seata-go
+//replace seata.apache.org/seata-go => ../incubator-seata-go

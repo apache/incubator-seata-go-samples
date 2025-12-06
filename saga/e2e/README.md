@@ -44,14 +44,14 @@ you need to exercise the E2E flow against your working tree at
 `../incubator-seata-go`, temporarily add a replace directive before running:
 
 ```
-go mod edit -replace github.com/seata/seata-go=../incubator-seata-go
+go mod edit -replace seata.apache.org/seata-go=../incubator-seata-go
 go mod tidy # optional, only if dependencies changed
 ```
 
 After the test run, drop the replace so the module file stays clean:
 
 ```
-go mod edit -dropreplace github.com/seata/seata-go
+go mod edit -dropreplace seata.apache.org/seata-go
 ```
 
 When using Go 1.18+, you can alternatively create a temporary workspace:

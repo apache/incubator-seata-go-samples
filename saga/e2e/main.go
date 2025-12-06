@@ -31,10 +31,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v3"
 
-	"github.com/seata/seata-go/pkg/client"
-	engcfg "github.com/seata/seata-go/pkg/saga/statemachine/engine/config"
-	"github.com/seata/seata-go/pkg/saga/statemachine/engine/core"
-	"github.com/seata/seata-go/pkg/saga/statemachine/engine/invoker"
+	"seata.apache.org/seata-go/pkg/client"
+	engcfg "seata.apache.org/seata-go/pkg/saga/statemachine/engine/config"
+	"seata.apache.org/seata-go/pkg/saga/statemachine/engine/core"
+	"seata.apache.org/seata-go/pkg/saga/statemachine/engine/invoker"
 )
 
 // InventoryAction (DB-backed) implements reduce/compensate with explicit params
