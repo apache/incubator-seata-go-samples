@@ -32,12 +32,12 @@ import (
 )
 
 type OrderTblModel struct {
-	Id            int64          `gorm:"column:id" json:"id"`
-	UserId        string         `gorm:"column:user_id" json:"user_id"`
-	CommodityCode string         `gorm:"commodity_code" json:"commodity_code"`
-	Count         int64          `gorm:"count" json:"count"`
-	Money         sql.NullInt64  `gorm:"money" json:"money"`
-	Descs         string         `gorm:"descs" json:"descs"`
+	Id            int64         `gorm:"column:id" json:"id"`
+	UserId        string        `gorm:"column:user_id" json:"user_id"`
+	CommodityCode string        `gorm:"commodity_code" json:"commodity_code"`
+	Count         int64         `gorm:"count" json:"count"`
+	Money         sql.NullInt64 `gorm:"money" json:"money"`
+	Descs         string        `gorm:"descs" json:"descs"`
 }
 
 func main() {
@@ -45,14 +45,12 @@ func main() {
 
 	ctx := context.Background()
 
-	// prepare: insert initial data
 	err := prepareData(ctx)
 	if err != nil {
 		log.Fatalf("failed to prepare data: %v", err)
 		return
 	}
 
-	// test: insert on duplicate key update
 	err = tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
 		Name:    "XASampleLocalGlobalTx_InsertOnUpdate",
 		Timeout: time.Second * 30,
@@ -63,12 +61,10 @@ func main() {
 		return
 	}
 
-	// check
 	if checkData(ctx) != nil {
 		panic("failed")
 	}
 
-	// XA mode doesn't use undo_log, so we don't need to check it
 	log.Println("XA insert_on_update integration test passed successfully")
 }
 
@@ -106,26 +102,23 @@ func getUpdatedDescs() string {
 	return fmt.Sprintf("insert on update descs %d", time.Now().Unix())
 }
 
-// prepareData insert initial test data
 func prepareData(ctx context.Context) error {
-	// delete old test data if exists
 	gormDB.WithContext(ctx).Table("order_tbl").Where("id = ?", 200).Delete(&OrderTblModel{})
 
 	data := getPrepareData()
 	return gormDB.WithContext(ctx).Table("order_tbl").Create(&data).Error
 }
 
-// insertOnUpdateData insert on duplicate key update operation
 func insertOnUpdateData(ctx context.Context) error {
 	newDescs := getUpdatedDescs()
 	sql := "insert into order_tbl (id, user_id, commodity_code, count, money, descs) values (?, ?, ?, ?, ?, ?) " +
 		"on duplicate key update descs=?"
-	
+
 	sqlDB, err := gormDB.DB()
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = sqlDB.ExecContext(ctx, sql, 200, "NO-100005", "C100003", 30, 300, "init desc", newDescs)
 	return err
 }
@@ -136,21 +129,18 @@ func checkData(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	
-	// check if the description was updated (not the original)
+
 	if order.Descs == "init desc" {
 		return fmt.Errorf("check data failed: data was not updated by INSERT ON DUPLICATE KEY UPDATE")
 	}
-	
-	// check other fields remain unchanged
+
 	prepareData := getPrepareData()
-	if order.UserId != prepareData.UserId || 
+	if order.UserId != prepareData.UserId ||
 		order.CommodityCode != prepareData.CommodityCode ||
 		order.Count != prepareData.Count ||
 		order.Money.Int64 != prepareData.Money.Int64 {
 		return fmt.Errorf("check data failed: unexpected data changes")
 	}
-	
+
 	return nil
 }
-
