@@ -1,0 +1,41 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package model
+
+import "gorm.io/gorm"
+
+type Order struct {
+	ID            int64  `gorm:"primaryKey;autoIncrement;column:id"`
+	UserID        string `gorm:"column:user_id;type:varchar(255)"`
+	CommodityCode string `gorm:"column:commodity_code;type:varchar(255)"`
+	Count         int64  `gorm:"column:count;default:0"`
+	Money         int64  `gorm:"column:money;default:0"`
+	IsDeleted     string `gorm:"column:is_deleted"`
+	Utime         int64  `gorm:"column:utime"`
+	Ctime         int64  `gorm:"column:ctime"`
+}
+
+func (Order) TableName() string {
+	return "orders"
+}
+
+func InitTable(db *gorm.DB) {
+	if err := db.AutoMigrate(&Order{}); err != nil {
+		panic("init table error")
+	}
+}
