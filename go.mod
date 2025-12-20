@@ -11,7 +11,7 @@ require (
 	google.golang.org/protobuf v1.33.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
-	seata.apache.org/seata-go v1.2.1-0.20240604133652-ad092d5eb331
+	seata.apache.org/seata-go v1.2.1-0.20251220113411-b18bcb019b65
 )
 
 require (
@@ -36,7 +36,6 @@ require (
 	github.com/apache/dubbo-getty v1.5.0 // indirect
 	github.com/apache/dubbo-go-hessian2 v1.12.2 // indirect
 	github.com/arana-db/parser v0.2.17 // indirect
-	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
 	github.com/bluele/gcache v0.0.2 // indirect
@@ -126,7 +125,6 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
-	seata.apache.org/seata-go v1.2.1-0.20240604133652-ad092d5eb331
 	github.com/shirou/gopsutil/v3 v3.22.2 // indirect
 	github.com/sijms/go-ora/v2 v2.5.17 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
