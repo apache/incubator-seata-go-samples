@@ -8,7 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/parnurzeal/gorequest v0.2.16
 	google.golang.org/grpc v1.57.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
 	seata.apache.org/seata-go v1.2.1-0.20251220113411-b18bcb019b65
