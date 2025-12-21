@@ -128,7 +128,7 @@ go work use ./seata-go-samples
 Now, the content of go.work file is as follows.
 
 ```text
-go 1.19
+go 1.20
 
 use (
         ./seata-go

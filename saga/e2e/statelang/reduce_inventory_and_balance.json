@@ -1,0 +1,75 @@
+{
+  "Name": "ReduceInventoryAndBalance",
+  "Comment": "Reduce inventory then balance with compensation (Go e2e; Java-like actions)",
+  "StartState": "ReduceInventory",
+  "Version": "1.0",
+  "Persist": true,
+  "States": {
+    "ReduceInventory": {
+      "Type": "ServiceTask",
+      "ServiceType": "local",
+      "ServiceName": "inventoryAction",
+      "ServiceMethod": "Reduce",
+      "IsPersist": true,
+      "CompensateState": "CompensateReduceInventory",
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['productId']",
+        "$CEL.elContext['context']['count']"
+      ],
+      "Catch": [
+        {"Exceptions": ["ERROR", "NOT_ENOUGH", "INVENTORY_NOT_ENOUGH"], "Next": "CompensationTrigger"}
+      ],
+      "Next": "ReduceBalance"
+    },
+    "ReduceBalance": {
+      "Type": "ServiceTask",
+      "ServiceType": "local",
+      "ServiceName": "balanceAction",
+      "ServiceMethod": "Reduce",
+      "IsPersist": true,
+      "CompensateState": "CompensateReduceBalance",
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['userId']",
+        "$CEL.elContext['context']['amount']"
+      ],
+      "Catch": [
+        {"Exceptions": ["ERROR", "reduce balance failed", "BALANCE_NOT_ENOUGH"], "Next": "CompensationTrigger"}
+      ],
+      "Next": "Success"
+    },
+    "CompensationTrigger": {
+      "Type": "CompensationTrigger",
+      "Next": "Fail"
+    },
+    "CompensateReduceInventory": {
+      "Type": "ServiceTask",
+      "ServiceType": "local",
+      "ServiceName": "inventoryAction",
+      "ServiceMethod": "CompensateReduce",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['productId']",
+        "$CEL.elContext['context']['count']"
+      ],
+      "Next": "Success"
+    },
+    "CompensateReduceBalance": {
+      "Type": "ServiceTask",
+      "ServiceType": "local",
+      "ServiceName": "balanceAction",
+      "ServiceMethod": "CompensateReduce",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['userId']",
+        "$CEL.elContext['context']['amount']"
+      ],
+      "Next": "Success"
+    },
+    "Success": {"Type": "Succeed"},
+    "Fail": {"Type": "Fail", "Comment": "Ended with compensation or error"}
+  }
+}

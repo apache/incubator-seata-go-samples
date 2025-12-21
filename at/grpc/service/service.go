@@ -21,9 +21,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"google.golang.org/protobuf/types/known/wrapperspb"
-	"seata.apache.org/seata-go-samples/at/grpc/pb"
 	"time"
+
+	"google.golang.org/protobuf/types/known/wrapperspb"
+	__ "seata.apache.org/seata-go-samples/at/grpc/pb"
 
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 )

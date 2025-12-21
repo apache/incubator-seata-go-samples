@@ -7,28 +7,35 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/parnurzeal/gorequest v0.2.16
-	google.golang.org/grpc v1.56.3
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/grpc v1.57.0
+	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
-	seata.apache.org/seata-go v1.2.1-0.20240604133652-ad092d5eb331
+	seata.apache.org/seata-go v1.2.1-0.20251220113411-b18bcb019b65
 )
 
-// For local testing only.
-//replace seata.apache.org/seata-go => ../seata-go
+require (
+	cloud.google.com/go/compute v1.20.1 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
+	github.com/google/cel-go v0.18.0 // indirect
+	github.com/robertkrimen/otto v0.4.0 // indirect
+	github.com/stoewer/go-strcase v1.2.0 // indirect
+	golang.org/x/exp v0.0.0-20220827204233-334a2380cb91 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230803162519-f966b187b2e5 // indirect
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
+)
 
 require (
-	cloud.google.com/go/compute v1.19.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
 	github.com/alibaba/sentinel-golang v1.0.4 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
-	github.com/apache/dubbo-getty v1.4.10 // indirect
+	github.com/apache/dubbo-getty v1.5.0 // indirect
 	github.com/apache/dubbo-go-hessian2 v1.12.2 // indirect
-	github.com/arana-db/parser v0.2.5 // indirect
-	github.com/benbjohnson/clock v1.1.0 // indirect
+	github.com/arana-db/parser v0.2.17 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
 	github.com/bluele/gcache v0.0.2 // indirect
@@ -139,24 +146,25 @@ require (
 	go.opentelemetry.io/otel/sdk v1.10.0 // indirect
 	go.opentelemetry.io/otel/trace v1.11.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.21.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/oauth2 v0.8.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
+	google.golang.org/genproto v0.0.0-20230726155614-23370e0ffb3e // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
 	moul.io/http2curl v1.0.0 // indirect
 	vimagination.zapto.org/byteio v0.0.0-20200222190125-d27cba0f0b10 // indirect
 )
 
-// replace github.com/knadh/koanf => github.com/knadh/koanf/v2 v2.1.2
+// For local testing only.
+//replace seata.apache.org/seata-go => ../incubator-seata-go

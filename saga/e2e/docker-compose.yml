@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,17 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# format go imports style
-go install golang.org/x/tools/cmd/goimports@v0.24.1
-goimports  -local seata.apache.org/seata-go -w .
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: saga_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: seata_saga
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql/mysql_saga_schema.sql:/docker-entrypoint-initdb.d/1_saga.sql:ro
 
-# format licence style
-go install github.com/apache/skywalking-eyes/cmd/license-eye@v0.6.0
-license-eye header fix
-# check dependency licence is valid
-license-eye dependency check
-
-# format go.mod
-go mod tidy
+  seata-server:
+    image: seataio/seata-server:1.6.1
+    container_name: seata_server
+    restart: unless-stopped
+    environment:
+      - SEATA_IP=0.0.0.0
+      - SEATA_PORT=8091
+    ports:
+      - "8091:8091"
+    depends_on:
+      - mysql
