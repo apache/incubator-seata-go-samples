@@ -58,7 +58,8 @@ func main() {
 	ctx := context.Background()
 
 	// check
-	if checkData(ctx) != nil {
+	if err := checkData(ctx); err != nil {
+		fmt.Println(err)
 		panic("failed")
 	}
 
@@ -93,10 +94,10 @@ func initDB() {
 func getData() OrderTblModel {
 	return OrderTblModel{
 		Id:            1,
-		UserId:        "NO-100003",
-		CommodityCode: "C100001",
+		UserId:        "NO-100001",
+		CommodityCode: "C100000",
 		Count:         101,
-		Money:         11,
+		Money:         10,
 		Descs:         "insert desc",
 	}
 }
@@ -108,7 +109,7 @@ func insertOnUpdateData(ctx context.Context) error {
 	return gormDB.WithContext(ctx).Table("order_tbl").Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{
-			"descs": data.Descs,
+			"count": data.Count,
 		}),
 	}).Create(&data).Error
 }
@@ -120,6 +121,7 @@ func checkData(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("count:", count)
 	if count != 1 {
 		return fmt.Errorf("check data failed")
 	}
