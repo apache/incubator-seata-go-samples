@@ -92,7 +92,7 @@ func initDB() {
 
 func getData() OrderTblModel {
 	return OrderTblModel{
-		Id:            1,
+		Id:            2,
 		UserId:        "NO-100003",
 		CommodityCode: "C100001",
 		Count:         101,

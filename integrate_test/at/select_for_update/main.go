@@ -26,7 +26,6 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"seata.apache.org/seata-go/pkg/client"
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 	"seata.apache.org/seata-go/pkg/tm"
@@ -57,11 +56,16 @@ func main() {
 
 	ctx := context.Background()
 
-	// wait clean undo log
-	time.Sleep(time.Second * 10)
-	if checkUndoLogData(ctx) != nil {
-		panic("failed")
+	if err := checkData(ctx); err != nil {
+		log.Fatalf("check data failed: %v", err)
 	}
+
+	time.Sleep(time.Second * 10)
+	if err := checkUndoLogData(ctx); err != nil {
+		log.Fatalf("check undo log failed: %v", err)
+	}
+
+	log.Println("select for update test passed successfully")
 }
 
 func initConfig() {
@@ -70,12 +74,18 @@ func initConfig() {
 }
 
 var gormDB *gorm.DB
+var sqlDB *sql.DB
 
 func initDB() {
-	sqlDB, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	var err error
+	sqlDB, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
 	if err != nil {
 		panic("init service error")
 	}
+
+	sqlDB.SetMaxOpenConns(10)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetConnMaxLifetime(time.Minute * 3)
 
 	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
@@ -97,8 +107,31 @@ func getData() OrderTblModel {
 
 // selectForUpdateData select for update
 func selectForUpdateData(ctx context.Context) error {
+	selectSQL := "SELECT id, user_id, commodity_code, count, money, descs FROM order_tbl WHERE id = ? FOR UPDATE"
+	_, err := sqlDB.ExecContext(ctx, selectSQL, 1)
+	if err != nil {
+		return fmt.Errorf("select for update failed: %w", err)
+	}
+
+	updateSQL := "UPDATE order_tbl SET descs = ?, count = count + 10 WHERE id = ?"
+	_, err = sqlDB.ExecContext(ctx, updateSQL, "updated by select for update", 1)
+	if err != nil {
+		return fmt.Errorf("update failed: %w", err)
+	}
+
+	return nil
+}
+
+func checkData(ctx context.Context) error {
 	var data OrderTblModel
-	return gormDB.WithContext(ctx).Table("order_tbl").Where(&OrderTblModel{Id: 333}).Clauses(clause.Locking{Strength: "UPDATE"}).Find(&data).Error
+	err := gormDB.WithContext(ctx).Table("order_tbl").Where("id = ?", 1).Find(&data).Error
+	if err != nil {
+		return err
+	}
+	if data.Descs != "updated by select for update" {
+		return fmt.Errorf("check data failed: expected descs='updated by select for update', got '%s'", data.Descs)
+	}
+	return nil
 }
 
 func checkUndoLogData(ctx context.Context) error {
