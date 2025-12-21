@@ -60,6 +60,7 @@ header: # `header` section is configurations for source codes license header.
     - 'DISCLAIMER'
     - 'NOTICE'
     - '.github'
+    - '**/*.json'
   comment: on-failure
 
   language:
