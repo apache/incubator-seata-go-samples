@@ -21,121 +21,109 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"seata.apache.org/seata-go/pkg/client"
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 	"seata.apache.org/seata-go/pkg/tm"
 )
 
-type OrderTblModel struct {
-	Id            int64  `gorm:"column:id" json:"id"`
-	UserId        string `gorm:"column:user_id" json:"user_id"`
-	CommodityCode string `gorm:"commodity_code" json:"commodity_code"`
-	Count         int64  `gorm:"count" json:"count"`
-	Money         int64  `gorm:"money" json:"money"`
-	Descs         string `gorm:"descs" json:"descs"`
-}
+var db *sql.DB
 
 func main() {
-	initConfig()
-
-	// test: insert on update
-	err := tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx_InsertOnUpdate",
-		Timeout: time.Second * 30,
-	}, insertOnUpdateData)
-
-	if err != nil {
-		log.Fatalf("failed to init transaction: %v", err)
-		return
-	}
+	client.InitPath("./conf/seatago.yml")
+	initDB()
 
 	ctx := context.Background()
 
-	// check
-	if err := checkData(ctx); err != nil {
-		fmt.Println(err)
-		panic("failed")
+	// execute insert on update within global transaction
+	err := tm.WithGlobalTx(ctx, &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx_InsertOnUpdate",
+		Timeout: time.Second * 30,
+	}, insertOnUpdateData)
+	if err != nil {
+		panic(fmt.Sprintf("transaction failed: %v", err))
 	}
 
-	// wait clean undo log
+	// verify data was updated correctly
+	if err := verifyData(ctx); err != nil {
+		panic(fmt.Sprintf("data verification failed: %v", err))
+	}
+
+	// wait for undo log cleanup
 	time.Sleep(time.Second * 10)
-	if checkUndoLogData(ctx) != nil {
-		panic("failed")
+
+	// verify undo log is cleaned
+	if err := verifyUndoLogCleaned(ctx); err != nil {
+		panic(fmt.Sprintf("undo log verification failed: %v", err))
 	}
+
+	fmt.Println("insert_on_update test passed")
 }
 
-func initConfig() {
-	client.InitPath("./conf/seatago.yml")
-	initDB()
+// insertOnUpdateData tests INSERT ... ON DUPLICATE KEY UPDATE
+// The initial data has id=1, so this will trigger an UPDATE
+func insertOnUpdateData(ctx context.Context) error {
+	sql := "INSERT INTO order_tbl (id, user_id, commodity_code, count, money, descs) " +
+		"VALUES (?, ?, ?, ?, ?, ?) " +
+		"ON DUPLICATE KEY UPDATE count = ?, descs = ?"
+
+	result, err := db.ExecContext(ctx, sql,
+		1, "NO-100001", "C100000", 200, 10, "insert desc",
+		200, "updated by insert_on_update")
+	if err != nil {
+		return fmt.Errorf("insert on update failed: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("get rows affected failed: %w", err)
+	}
+	fmt.Printf("insert on update affected rows: %d\n", rows)
+
+	return nil
 }
 
-var gormDB *gorm.DB
+func verifyData(ctx context.Context) error {
+	var count int64
+	var descs string
+
+	err := db.QueryRowContext(ctx,
+		"SELECT count, descs FROM order_tbl WHERE id = ?", 1).Scan(&count, &descs)
+	if err != nil {
+		return fmt.Errorf("query failed: %w", err)
+	}
+
+	if count != 200 {
+		return fmt.Errorf("expected count=200, got %d", count)
+	}
+	if descs != "updated by insert_on_update" {
+		return fmt.Errorf("expected descs='updated by insert_on_update', got '%s'", descs)
+	}
+
+	fmt.Printf("data verified: count=%d, descs=%s\n", count, descs)
+	return nil
+}
+
+func verifyUndoLogCleaned(ctx context.Context) error {
+	var count int64
+	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM undo_log").Scan(&count)
+	if err != nil {
+		return fmt.Errorf("query undo_log failed: %w", err)
+	}
+
+	if count != 0 {
+		return fmt.Errorf("undo_log not cleaned, count=%d", count)
+	}
+
+	fmt.Println("undo_log cleaned successfully")
+	return nil
+}
 
 func initDB() {
-	sqlDB, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	var err error
+	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
 	if err != nil {
-		panic("init service error")
+		panic("init db error: " + err.Error())
 	}
-
-	gormDB, err = gorm.Open(mysql.New(mysql.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-	if err != nil {
-		panic("open DB error")
-	}
-}
-
-func getData() OrderTblModel {
-	return OrderTblModel{
-		Id:            1,
-		UserId:        "NO-100001",
-		CommodityCode: "C100000",
-		Count:         101,
-		Money:         10,
-		Descs:         "insert desc",
-	}
-}
-
-// insertOnUpdateData insert on update one data
-func insertOnUpdateData(ctx context.Context) error {
-	data := getData()
-
-	return gormDB.WithContext(ctx).Table("order_tbl").Clauses(clause.OnConflict{
-		Columns: []clause.Column{{Name: "id"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{
-			"count": data.Count,
-		}),
-	}).Create(&data).Error
-}
-
-func checkData(ctx context.Context) error {
-	query := getData()
-	var count int64
-	err := gormDB.WithContext(ctx).Table("order_tbl").Where(query).Count(&count).Error
-	if err != nil {
-		return err
-	}
-	fmt.Println("count:", count)
-	if count != 1 {
-		return fmt.Errorf("check data failed")
-	}
-	return nil
-}
-
-func checkUndoLogData(ctx context.Context) error {
-	var count int64
-	err := gormDB.WithContext(ctx).Table("undo_log").Count(&count).Error
-	if err != nil {
-		return err
-	}
-	if count != 0 {
-		return fmt.Errorf("check undolog failed")
-	}
-	return nil
 }

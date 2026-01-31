@@ -21,94 +21,119 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"seata.apache.org/seata-go/pkg/client"
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 	"seata.apache.org/seata-go/pkg/tm"
 )
 
-type OrderTblModel struct {
-	Id            int64  `gorm:"column:id" json:"id"`
-	UserId        string `gorm:"column:user_id" json:"user_id"`
-	CommodityCode string `gorm:"commodity_code" json:"commodity_code"`
-	Count         int64  `gorm:"count" json:"count"`
-	Money         int64  `gorm:"money" json:"money"`
-	Descs         string `gorm:"descs" json:"descs"`
-}
+var db *sql.DB
+var expectedCount int64
 
 func main() {
-	initConfig()
-
-	// test: select for update
-	err := tm.WithGlobalTx(context.Background(), &tm.GtxConfig{
-		Name:    "ATSampleLocalGlobalTx_SelectForUpdate",
-		Timeout: time.Second * 30,
-	}, selectForUpdateData)
-
-	if err != nil {
-		log.Fatalf("failed to init transaction: %v", err)
-		return
-	}
+	client.InitPath("./conf/seatago.yml")
+	initDB()
 
 	ctx := context.Background()
 
-	// wait clean undo log
-	time.Sleep(time.Second * 10)
-	if checkUndoLogData(ctx) != nil {
-		panic("failed")
+	// execute select for update + update within global transaction
+	err := tm.WithGlobalTx(ctx, &tm.GtxConfig{
+		Name:    "ATSampleLocalGlobalTx_SelectForUpdate",
+		Timeout: time.Second * 30,
+	}, selectForUpdateAndModify)
+	if err != nil {
+		panic(fmt.Sprintf("transaction failed: %v", err))
 	}
+
+	// verify data was updated correctly
+	if err := verifyData(ctx); err != nil {
+		panic(fmt.Sprintf("data verification failed: %v", err))
+	}
+
+	// wait for undo log cleanup
+	time.Sleep(time.Second * 10)
+
+	// verify undo log is cleaned
+	if err := verifyUndoLogCleaned(ctx); err != nil {
+		panic(fmt.Sprintf("undo log verification failed: %v", err))
+	}
+
+	fmt.Println("select_for_update test passed")
 }
 
-func initConfig() {
-	client.InitPath("./conf/seatago.yml")
-	initDB()
+// selectForUpdateAndModify tests SELECT ... FOR UPDATE followed by UPDATE
+// This is the typical use case: lock the row first, then modify it
+func selectForUpdateAndModify(ctx context.Context) error {
+	// step 1: select for update to lock the row
+	var id int64
+	var count int64
+	err := db.QueryRowContext(ctx,
+		"SELECT id, count FROM order_tbl WHERE id = ? FOR UPDATE", 1).Scan(&id, &count)
+	if err != nil {
+		return fmt.Errorf("select for update failed: %w", err)
+	}
+	fmt.Printf("locked row: id=%d, count=%d\n", id, count)
+
+	// step 2: update the locked row
+	newCount := count + 50
+	expectedCount = newCount // save for verification
+	result, err := db.ExecContext(ctx,
+		"UPDATE order_tbl SET count = ?, descs = ? WHERE id = ?",
+		newCount, "updated by select_for_update", id)
+	if err != nil {
+		return fmt.Errorf("update failed: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("get rows affected failed: %w", err)
+	}
+	fmt.Printf("update affected rows: %d\n", rows)
+
+	return nil
 }
 
-var gormDB *gorm.DB
+func verifyData(ctx context.Context) error {
+	var count int64
+	var descs string
+
+	err := db.QueryRowContext(ctx,
+		"SELECT count, descs FROM order_tbl WHERE id = ?", 1).Scan(&count, &descs)
+	if err != nil {
+		return fmt.Errorf("query failed: %w", err)
+	}
+
+	if count != expectedCount {
+		return fmt.Errorf("expected count=%d, got %d", expectedCount, count)
+	}
+	if descs != "updated by select_for_update" {
+		return fmt.Errorf("expected descs='updated by select_for_update', got '%s'", descs)
+	}
+
+	fmt.Printf("data verified: count=%d, descs=%s\n", count, descs)
+	return nil
+}
+
+func verifyUndoLogCleaned(ctx context.Context) error {
+	var count int64
+	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM undo_log").Scan(&count)
+	if err != nil {
+		return fmt.Errorf("query undo_log failed: %w", err)
+	}
+
+	if count != 0 {
+		return fmt.Errorf("undo_log not cleaned, count=%d", count)
+	}
+
+	fmt.Println("undo_log cleaned successfully")
+	return nil
+}
 
 func initDB() {
-	sqlDB, err := sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
+	var err error
+	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
 	if err != nil {
-		panic("init service error")
+		panic("init db error: " + err.Error())
 	}
-
-	gormDB, err = gorm.Open(mysql.New(mysql.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-	if err != nil {
-		panic("open DB error")
-	}
-}
-
-func getData() OrderTblModel {
-	return OrderTblModel{
-		UserId:        "NO-100003",
-		CommodityCode: "C100001",
-		Count:         101,
-		Money:         11,
-		Descs:         "insert desc",
-	}
-}
-
-// selectForUpdateData select for update
-func selectForUpdateData(ctx context.Context) error {
-	var data OrderTblModel
-	return gormDB.WithContext(ctx).Table("order_tbl").Where(&OrderTblModel{Id: 333}).Clauses(clause.Locking{Strength: "UPDATE"}).Find(&data).Error
-}
-
-func checkUndoLogData(ctx context.Context) error {
-	var count int64
-	err := gormDB.WithContext(ctx).Table("undo_log").Count(&count).Error
-	if err != nil {
-		return err
-	}
-	if count != 0 {
-		return fmt.Errorf("check undolog failed")
-	}
-	return nil
 }
