@@ -31,7 +31,7 @@ import (
 )
 
 func main() {
-	client.InitPath("../../../conf/seatago.yml")
+	client.InitPath("seatago.yml")
 	common.InitDB()
 
 	r := gin.Default()
@@ -48,7 +48,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if _, err := proxy.Prepare(c, req); err != nil {
+		if _, err := proxy.Prepare(c.Request.Context(), req); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}

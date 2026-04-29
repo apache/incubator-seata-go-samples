@@ -57,6 +57,8 @@ coordinates the full TCC lifecycle via HTTP calls to each service.
   passing the XID in the request header.
 - Each **service** registers its TCC branch with Seata TC during Prepare.
 - **Seata TC** calls Commit or Rollback on each service directly via the seata protocol (TCP).
+- Each service has its own `seatago.yml` with a unique `application-id` so that TC can correctly
+  route branch callbacks to the right service process.
 
 ## TCC Lifecycle
 
@@ -122,7 +124,7 @@ docker-compose up -d
 
 This starts MySQL (with auto-initialized `seata_ride` database) and Seata Server.
 
-### 2. Start all five services (each in a separate terminal)
+### 2. Start all five services (each in a separate terminal, from its own directory)
 
 ```bash
 cd tcc/ride-order/order-service    && go run .   # :8001
@@ -131,6 +133,8 @@ cd tcc/ride-order/pricing-service  && go run .   # :8003
 cd tcc/ride-order/coupon-service   && go run .   # :8004
 cd tcc/ride-order/capacity-service && go run .   # :8005
 ```
+
+Each service must be started from its own directory so it can find its local `seatago.yml`.
 
 ### 3. Run the initiator
 

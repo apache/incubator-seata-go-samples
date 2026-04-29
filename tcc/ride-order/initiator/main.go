@@ -40,7 +40,7 @@ const (
 )
 
 func main() {
-	client.InitPath("../../../conf/seatago.yml")
+	client.InitPath("seatago.yml")
 	ctx := context.Background()
 
 	// ========== Scenario 1: All services succeed ==========
