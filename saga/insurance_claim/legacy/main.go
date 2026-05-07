@@ -41,30 +41,30 @@ func main() {
 		failTransfer bool
 	)
 
-	flag.StringVar(&businessKey, "businessKey", "insurance-claim-legacy-demo", "业务主键")
-	flag.StringVar(&claimID, "claimId", "claim-1001", "理赔单号")
-	flag.StringVar(&claimantID, "claimantId", "claimant-9001", "理赔人编号")
-	flag.StringVar(&assessmentID, "assessmentId", "assessment-7001", "定损单号")
-	flag.StringVar(&surveyorID, "surveyorId", "surveyor-3001", "定损员编号")
-	flag.StringVar(&bankAccount, "bankAccount", "6222020202020202", "收款银行卡")
-	flag.IntVar(&payoutAmount, "payoutAmount", 1500, "打款金额")
-	flag.BoolVar(&failTransfer, "failTransfer", false, "是否模拟银行打款失败")
+	flag.StringVar(&businessKey, "businessKey", "insurance-claim-legacy-demo", "business key")
+	flag.StringVar(&claimID, "claimId", "claim-1001", "insurance claim ID")
+	flag.StringVar(&claimantID, "claimantId", "claimant-9001", "claimant ID")
+	flag.StringVar(&assessmentID, "assessmentId", "assessment-7001", "damage assessment ID")
+	flag.StringVar(&surveyorID, "surveyorId", "surveyor-3001", "surveyor ID")
+	flag.StringVar(&bankAccount, "bankAccount", "6222020202020202", "bank account")
+	flag.IntVar(&payoutAmount, "payoutAmount", 1500, "payout amount")
+	flag.BoolVar(&failTransfer, "failTransfer", false, "simulate a bank transfer failure")
 	flag.Parse()
 
 	settings := app.LoadSettings()
 	db, err := app.OpenDB()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "打开数据库失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed to open the database: %v\n", err)
 		os.Exit(1)
 	}
 	defer db.Close()
 
 	if err := app.EnsureBusinessSchema(db); err != nil {
-		fmt.Fprintf(os.Stderr, "初始化业务表失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed to initialize the business schema: %v\n", err)
 		os.Exit(1)
 	}
 	if err := app.ResetClaimData(db, businessKey, claimID); err != nil {
-		fmt.Fprintf(os.Stderr, "重置示例数据失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed to reset the sample data: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -85,7 +85,7 @@ func main() {
 			fmt.Printf("mode=legacy businessKey=%s failedStep=%s err=%v\n", businessKey, step.name, err)
 			snapshot, snapErr := app.LoadSnapshot(db, claimID)
 			if snapErr != nil {
-				fmt.Fprintf(os.Stderr, "读取理赔快照失败: %v\n", snapErr)
+				fmt.Fprintf(os.Stderr, "failed to load the insurance claim snapshot: %v\n", snapErr)
 				os.Exit(1)
 			}
 			fmt.Println(app.FormatSnapshot(snapshot))
@@ -95,7 +95,7 @@ func main() {
 
 	snapshot, err := app.LoadSnapshot(db, claimID)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "读取理赔快照失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed to load the insurance claim snapshot: %v\n", err)
 		os.Exit(1)
 	}
 

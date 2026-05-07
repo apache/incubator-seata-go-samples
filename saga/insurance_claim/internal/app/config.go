@@ -54,8 +54,8 @@ func LoadSettings() Settings {
 	return Settings{
 		MySQLHost:      envOrDefault("MYSQL_HOST", DefaultMySQLHost),
 		MySQLPort:      envOrDefault("MYSQL_PORT", DefaultMySQLPort),
-		MySQLUser:      envOrDefault("MYSQL_USER", DefaultMySQLUser),
-		MySQLPass:      envOrDefault("MYSQL_PWD", DefaultMySQLPassword),
+		MySQLUser:      envOrDefaultAny(DefaultMySQLUser, "MYSQL_USERNAME", "MYSQL_USER"),
+		MySQLPass:      envOrDefaultAny(DefaultMySQLPassword, "MYSQL_PASSWORD", "MYSQL_PWD"),
 		MySQLDB:        envOrDefault("MYSQL_DB", DefaultMySQLDB),
 		IdentityPort:   envOrDefault("IDENTITY_SERVICE_PORT", DefaultIdentityPort),
 		AssessmentPort: envOrDefault("ASSESSMENT_SERVICE_PORT", DefaultAssessmentPort),
@@ -93,6 +93,15 @@ func (s Settings) TransferBaseURL() string {
 func envOrDefault(key string, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
+	}
+	return fallback
+}
+
+func envOrDefaultAny(fallback string, keys ...string) string {
+	for _, key := range keys {
+		if value := os.Getenv(key); value != "" {
+			return value
+		}
 	}
 	return fallback
 }

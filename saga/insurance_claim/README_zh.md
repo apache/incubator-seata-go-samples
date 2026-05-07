@@ -84,6 +84,8 @@ go run ./saga/insurance_claim/services/surveyor
 go run ./saga/insurance_claim/services/transfer
 ```
 
+也可以在 `saga/insurance_claim` 目录内运行，把命令里的 `saga/insurance_claim/` 前缀去掉即可，例如 `go run ./orchestrator`。
+
 ## 运行遗留串行流程
 
 成功场景：
@@ -135,6 +137,7 @@ go run ./saga/insurance_claim/orchestrator -failTransfer
 - 状态机使用 `CompensateState` 描述每个前向动作对应的补偿动作
 - `failTransfer` 参数用于稳定复现银行打款失败
 - `claim_step_log` 会记录前向和补偿执行顺序，便于观察迁移效果
+- MySQL 可通过 `MYSQL_HOST`、`MYSQL_PORT`、`MYSQL_USERNAME`、`MYSQL_PASSWORD`、`MYSQL_DB` 覆盖；同时兼容 `MYSQL_USER` 和 `MYSQL_PWD`
 
 ## 使用本地 seata-go 调试
 

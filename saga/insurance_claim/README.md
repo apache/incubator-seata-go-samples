@@ -84,6 +84,8 @@ go run ./saga/insurance_claim/services/surveyor
 go run ./saga/insurance_claim/services/transfer
 ```
 
+You can also run each command from `saga/insurance_claim` by dropping the `saga/insurance_claim/` prefix, for example `go run ./orchestrator`.
+
 ## Run the Legacy Sequential Flow
 
 Success case:
@@ -135,6 +137,7 @@ Focus on `actionTrail`. It shows:
 - The state machine uses `CompensateState` to map each forward action to its compensating action
 - The `failTransfer` parameter provides a stable way to reproduce the bank transfer failure
 - `claim_step_log` records both forward and compensation execution order for easy observation
+- MySQL can be customized with `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USERNAME`, `MYSQL_PASSWORD`, and `MYSQL_DB`; `MYSQL_USER` and `MYSQL_PWD` are also accepted for compatibility
 
 ## Debug with a Local seata-go Checkout
 

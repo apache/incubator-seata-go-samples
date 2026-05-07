@@ -1,8 +1,8 @@
 {
   "Name": "InsuranceClaimSaga",
-  "Comment": "将遗留理赔长流程迁移到 Saga，演示银行打款失败后的逆序补偿",
+  "Comment": "Migrate a legacy long-running insurance claim process to Saga and demonstrate reverse compensation after a bank transfer failure",
   "StartState": "VerifyIdentity",
-  "Version": "1.0",
+  "Version": "1.1",
   "Persist": true,
   "States": {
     "VerifyIdentity": {
@@ -111,7 +111,7 @@
           "Exceptions": [
             "HTTP error"
           ],
-          "Next": "CompensationTrigger"
+          "Next": "CancelSurveyorNotification"
         }
       ],
       "Next": "Success"
@@ -130,7 +130,7 @@
         "$CEL.elContext['context']['businessKey']",
         "$CEL.elContext['context']['claimId']"
       ],
-      "Next": "Success"
+      "Next": "Failed"
     },
     "DeleteDamageAssessment": {
       "Type": "ServiceTask",
@@ -142,7 +142,7 @@
         "$CEL.elContext['context']['businessKey']",
         "$CEL.elContext['context']['claimId']"
       ],
-      "Next": "Success"
+      "Next": "UnverifyClaim"
     },
     "ReleasePayoutFunds": {
       "Type": "ServiceTask",
@@ -154,7 +154,7 @@
         "$CEL.elContext['context']['businessKey']",
         "$CEL.elContext['context']['claimId']"
       ],
-      "Next": "Success"
+      "Next": "DeleteDamageAssessment"
     },
     "CancelSurveyorNotification": {
       "Type": "ServiceTask",
@@ -166,14 +166,14 @@
         "$CEL.elContext['context']['businessKey']",
         "$CEL.elContext['context']['claimId']"
       ],
-      "Next": "Success"
+      "Next": "ReleasePayoutFunds"
     },
     "Success": {
       "Type": "Succeed"
     },
     "Failed": {
       "Type": "Fail",
-      "Comment": "前向流程失败并完成补偿"
+      "Comment": "The forward flow failed and compensation completed"
     }
   }
 }

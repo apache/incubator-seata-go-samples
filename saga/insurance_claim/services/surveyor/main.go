@@ -30,12 +30,12 @@ func main() {
 	settings := app.LoadSettings()
 	db, err := app.OpenDB()
 	if err != nil {
-		log.Fatalf("打开数据库失败: %v", err)
+		log.Fatalf("failed to open the database: %v", err)
 	}
 	defer db.Close()
 
 	if err := app.EnsureBusinessSchema(db); err != nil {
-		log.Fatalf("初始化业务表失败: %v", err)
+		log.Fatalf("failed to initialize the business schema: %v", err)
 	}
 
 	mux := http.NewServeMux()
@@ -67,6 +67,7 @@ func main() {
 			httpjson.WriteText(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+		log.Printf("operation=NotifyAssignedSurveyor businessKey=%s claimId=%s surveyorId=%s status=SUCCESS", businessKey, claimID, surveyorID)
 		httpjson.WriteText(w, http.StatusOK, "SURVEYOR_NOTIFIED")
 	})
 	mux.HandleFunc("/CancelSurveyorNotification", func(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +90,7 @@ func main() {
 			httpjson.WriteText(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+		log.Printf("operation=CancelSurveyorNotification businessKey=%s claimId=%s status=SUCCESS", businessKey, claimID)
 		httpjson.WriteText(w, http.StatusOK, "SURVEYOR_NOTIFICATION_CANCELLED")
 	})
 

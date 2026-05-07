@@ -106,6 +106,27 @@ func EnsureBusinessSchema(db *sql.DB) error {
 	return nil
 }
 
+func EnsureSagaStoreSchema(db *sql.DB) error {
+	statements := []string{
+		`ALTER TABLE seata_state_machine_def
+			MODIFY gmt_create DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)`,
+		`ALTER TABLE seata_state_machine_inst
+			MODIFY gmt_started DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+			MODIFY gmt_end DATETIME(6) DEFAULT NULL,
+			MODIFY gmt_updated DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)`,
+		`ALTER TABLE seata_state_inst
+			MODIFY gmt_started DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+			MODIFY gmt_end DATETIME(6) DEFAULT NULL,
+			MODIFY gmt_updated DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)`,
+	}
+	for _, statement := range statements {
+		if _, err := db.Exec(statement); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func ResetClaimData(db *sql.DB, businessKey string, claimID string) error {
 	statements := []string{
 		"DELETE FROM claim_step_log WHERE business_key = ? OR claim_id = ?",

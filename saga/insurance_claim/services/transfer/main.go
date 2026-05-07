@@ -30,12 +30,12 @@ func main() {
 	settings := app.LoadSettings()
 	db, err := app.OpenDB()
 	if err != nil {
-		log.Fatalf("打开数据库失败: %v", err)
+		log.Fatalf("failed to open the database: %v", err)
 	}
 	defer db.Close()
 
 	if err := app.EnsureBusinessSchema(db); err != nil {
-		log.Fatalf("初始化业务表失败: %v", err)
+		log.Fatalf("failed to initialize the business schema: %v", err)
 	}
 
 	mux := http.NewServeMux()
@@ -74,9 +74,11 @@ func main() {
 			return
 		}
 		if err := app.ExecuteTransfer(db, businessKey, claimID, bankAccount, amount, failTransfer); err != nil {
+			log.Printf("operation=ExecuteBankTransfer businessKey=%s claimId=%s bankAccount=%s amount=%d status=FAILED error=%s", businessKey, claimID, bankAccount, amount, err)
 			httpjson.WriteText(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+		log.Printf("operation=ExecuteBankTransfer businessKey=%s claimId=%s bankAccount=%s amount=%d status=SUCCESS", businessKey, claimID, bankAccount, amount)
 		httpjson.WriteText(w, http.StatusOK, "BANK_TRANSFER_SUCCESS")
 	})
 
