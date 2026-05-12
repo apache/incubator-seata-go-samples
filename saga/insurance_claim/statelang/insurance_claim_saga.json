@@ -1,0 +1,179 @@
+{
+  "Name": "InsuranceClaimSaga",
+  "Comment": "Migrate a legacy long-running insurance claim process to Saga and demonstrate reverse compensation after a bank transfer failure",
+  "StartState": "VerifyIdentity",
+  "Version": "1.1",
+  "Persist": true,
+  "States": {
+    "VerifyIdentity": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "identityService",
+      "ServiceMethod": "POST",
+      "CompensateState": "UnverifyClaim",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']",
+        "$CEL.elContext['context']['claimantId']"
+      ],
+      "Catch": [
+        {
+          "Exceptions": [
+            "HTTP error"
+          ],
+          "Next": "CompensationTrigger"
+        }
+      ],
+      "Next": "CreateDamageAssessment"
+    },
+    "CreateDamageAssessment": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "assessmentService",
+      "ServiceMethod": "POST",
+      "CompensateState": "DeleteDamageAssessment",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']",
+        "$CEL.elContext['context']['assessmentId']"
+      ],
+      "Catch": [
+        {
+          "Exceptions": [
+            "HTTP error"
+          ],
+          "Next": "CompensationTrigger"
+        }
+      ],
+      "Next": "ReservePayoutFunds"
+    },
+    "ReservePayoutFunds": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "fundsService",
+      "ServiceMethod": "POST",
+      "CompensateState": "ReleasePayoutFunds",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']",
+        "$CEL.elContext['context']['payoutAmount']"
+      ],
+      "Catch": [
+        {
+          "Exceptions": [
+            "HTTP error"
+          ],
+          "Next": "CompensationTrigger"
+        }
+      ],
+      "Next": "NotifyAssignedSurveyor"
+    },
+    "NotifyAssignedSurveyor": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "surveyorService",
+      "ServiceMethod": "POST",
+      "CompensateState": "CancelSurveyorNotification",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']",
+        "$CEL.elContext['context']['surveyorId']"
+      ],
+      "Catch": [
+        {
+          "Exceptions": [
+            "HTTP error"
+          ],
+          "Next": "CompensationTrigger"
+        }
+      ],
+      "Next": "ExecuteBankTransfer"
+    },
+    "ExecuteBankTransfer": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "transferService",
+      "ServiceMethod": "POST",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']",
+        "$CEL.elContext['context']['bankAccount']",
+        "$CEL.elContext['context']['payoutAmount']",
+        "$CEL.elContext['context']['failTransfer']"
+      ],
+      "Catch": [
+        {
+          "Exceptions": [
+            "HTTP error"
+          ],
+          "Next": "CancelSurveyorNotification"
+        }
+      ],
+      "Next": "Success"
+    },
+    "CompensationTrigger": {
+      "Type": "CompensationTrigger",
+      "Next": "Failed"
+    },
+    "UnverifyClaim": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "identityService",
+      "ServiceMethod": "POST",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']"
+      ],
+      "Next": "Failed"
+    },
+    "DeleteDamageAssessment": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "assessmentService",
+      "ServiceMethod": "POST",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']"
+      ],
+      "Next": "UnverifyClaim"
+    },
+    "ReleasePayoutFunds": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "fundsService",
+      "ServiceMethod": "POST",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']"
+      ],
+      "Next": "DeleteDamageAssessment"
+    },
+    "CancelSurveyorNotification": {
+      "Type": "ServiceTask",
+      "ServiceType": "http",
+      "ServiceName": "surveyorService",
+      "ServiceMethod": "POST",
+      "IsPersist": true,
+      "Input": [
+        "$CEL.elContext['context']['businessKey']",
+        "$CEL.elContext['context']['claimId']"
+      ],
+      "Next": "ReleasePayoutFunds"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Comment": "The forward flow failed and compensation completed"
+    }
+  }
+}
