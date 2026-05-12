@@ -91,7 +91,7 @@ func main() {
 			return
 		}
 		log.Printf("operation=CancelSurveyorNotification businessKey=%s claimId=%s status=SUCCESS", businessKey, claimID)
-		httpjson.WriteText(w, http.StatusOK, "SURVEYOR_NOTIFICATION_CANCELLED")
+		httpjson.WriteText(w, http.StatusOK, "SURVEYOR_NOTIFICATION_CANCELED")
 	})
 
 	addr := fmt.Sprintf(":%s", settings.SurveyorPort)

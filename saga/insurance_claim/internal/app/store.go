@@ -212,10 +212,10 @@ func NotifySurveyor(db *sql.DB, businessKey string, claimID string, surveyorID s
 }
 
 func CancelSurveyorNotification(db *sql.DB, businessKey string, claimID string) error {
-	if _, err := db.Exec(`UPDATE claim_surveyor_notice SET status = 'CANCELLED' WHERE claim_id = ?`, claimID); err != nil {
+	if _, err := db.Exec(`UPDATE claim_surveyor_notice SET status = 'CANCELED' WHERE claim_id = ?`, claimID); err != nil {
 		return err
 	}
-	return appendStepLog(db, businessKey, claimID, "surveyor", "compensate", "surveyor notification cancelled")
+	return appendStepLog(db, businessKey, claimID, "surveyor", "compensate", "surveyor notification canceled")
 }
 
 func ExecuteTransfer(db *sql.DB, businessKey string, claimID string, bankAccount string, amount int, failTransfer bool) error {
