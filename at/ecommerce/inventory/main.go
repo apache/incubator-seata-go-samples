@@ -37,6 +37,7 @@ func main() {
 	db = util.GetAtMySqlDb()
 
 	r := gin.Default()
+	r.ContextWithFallback = true
 	r.Use(ginmiddleware.TransactionMiddleware())
 	r.POST("/deductInventory", deductInventoryHandler)
 
