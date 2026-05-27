@@ -92,8 +92,19 @@ Expected result:
 
 - `account-service` returns `balance not enough`
 - the global transaction fails in `order-service`
-- no new committed order row remains in `seata_ecommerce_order.order_tbl`
-- inventory stock is rolled back to its previous value
+- `seata_ecommerce_order.order_tbl` does not gain a new committed row
+- `seata_ecommerce_inventory.inventory_tbl.stock` remains unchanged from its value before this request
+- `seata_ecommerce_account.account_tbl.balance` remains unchanged from its value before this request
+
+## Reset the Demo Data
+
+If you want to re-run the checks from the initial database state, recreate the sample containers and volumes:
+
+```bash
+cd at/ecommerce
+docker compose down -v
+docker compose up -d
+```
 
 ## Verify in MySQL
 
