@@ -99,7 +99,7 @@ func deductInventory(ctx context.Context, req OrderRequest) (re error) {
 	}
 
 	log.Infof("call inventory service, xid=%s", tm.GetXID(ctx))
-	request.Post(inventoryService + "/deductInventory").
+	request.Post(inventoryService+"/deductInventory").
 		Set(constant.XidKey, tm.GetXID(ctx)).
 		Send(string(payload)).
 		Set("Content-Type", "application/json").
@@ -126,7 +126,7 @@ func deductAccount(ctx context.Context, req OrderRequest) (re error) {
 	}
 
 	log.Infof("call account service, xid=%s", tm.GetXID(ctx))
-	request.Post(accountService + "/deductAccount").
+	request.Post(accountService+"/deductAccount").
 		Set(constant.XidKey, tm.GetXID(ctx)).
 		Send(string(payload)).
 		Set("Content-Type", "application/json").

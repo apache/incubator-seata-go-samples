@@ -32,7 +32,7 @@ import (
 var db *sql.DB
 
 func main() {
-	client.InitPath("../../../conf/seatago.yml")
+	client.InitPath("conf/seatago.yml")
 	setDefaultEnv("MYSQL_DB", "seata_ecommerce_inventory")
 	db = util.GetAtMySqlDb()
 

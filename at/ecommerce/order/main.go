@@ -35,7 +35,7 @@ var (
 )
 
 func main() {
-	client.InitPath("../../../conf/seatago.yml")
+	client.InitPath("conf/seatago.yml")
 	setDefaultEnv("MYSQL_DB", "seata_ecommerce_order")
 	if value := os.Getenv("INVENTORY_SERVICE_URL"); value != "" {
 		inventoryService = value
