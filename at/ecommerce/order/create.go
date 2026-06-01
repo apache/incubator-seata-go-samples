@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -52,6 +53,18 @@ func createOrder(c *gin.Context) error {
 	var req OrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return err
+	}
+	if strings.TrimSpace(req.UserID) == "" {
+		return fmt.Errorf("userId is required")
+	}
+	if strings.TrimSpace(req.CommodityCode) == "" {
+		return fmt.Errorf("commodityCode is required")
+	}
+	if req.Count <= 0 {
+		return fmt.Errorf("count must be greater than 0")
+	}
+	if req.Money <= 0 {
+		return fmt.Errorf("money must be greater than 0")
 	}
 
 	return tm.WithGlobalTx(c.Request.Context(), &tm.GtxConfig{

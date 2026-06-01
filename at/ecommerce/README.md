@@ -102,8 +102,8 @@ If you want to re-run the checks from the initial database state, recreate the s
 
 ```bash
 cd at/ecommerce
-docker compose down -v
-docker compose up -d
+docker-compose down -v
+docker-compose up -d
 ```
 
 ## Verify in MySQL

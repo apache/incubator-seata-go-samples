@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +33,12 @@ func deductAccount(c *gin.Context) error {
 	var req AccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return err
+	}
+	if strings.TrimSpace(req.UserID) == "" {
+		return fmt.Errorf("userId is required")
+	}
+	if req.Money <= 0 {
+		return fmt.Errorf("money must be greater than 0")
 	}
 
 	sql := "update account_tbl set balance = balance - ? where user_id = ? and balance >= ?"

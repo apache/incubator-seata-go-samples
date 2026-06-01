@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +33,12 @@ func deductInventory(c *gin.Context) error {
 	var req InventoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return err
+	}
+	if strings.TrimSpace(req.CommodityCode) == "" {
+		return fmt.Errorf("commodityCode is required")
+	}
+	if req.Count <= 0 {
+		return fmt.Errorf("count must be greater than 0")
 	}
 
 	sql := "update inventory_tbl set stock = stock - ? where commodity_code = ? and stock >= ?"
