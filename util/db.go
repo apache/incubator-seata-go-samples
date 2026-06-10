@@ -45,19 +45,15 @@ func GetXAMySqlDb() *sql.DB {
 }
 
 func defaultEnv() {
-	if os.Getenv("MYSQL_HOST") == "" {
-		_ = os.Setenv("MYSQL_HOST", "127.0.0.1")
-	}
-	if os.Getenv("MYSQL_PORT") == "" {
-		_ = os.Setenv("MYSQL_PORT", "3306")
-	}
-	if os.Getenv("MYSQL_USERNAME") == "" {
-		_ = os.Setenv("MYSQL_USERNAME", "root")
-	}
+	SetDefaultEnv("MYSQL_HOST", "127.0.0.1")
+	SetDefaultEnv("MYSQL_PORT", "3306")
+	SetDefaultEnv("MYSQL_USERNAME", "root")
 	if os.Getenv("MYSQL_PASSWORD") == "" {
-		_ = os.Setenv("MYSQL_PASSWORD", "123456")
+		if rootPassword := os.Getenv("MYSQL_ROOT_PASSWORD"); rootPassword != "" {
+			_ = os.Setenv("MYSQL_PASSWORD", rootPassword)
+		} else {
+			_ = os.Setenv("MYSQL_PASSWORD", "123456")
+		}
 	}
-	if os.Getenv("MYSQL_DB") == "" {
-		_ = os.Setenv("MYSQL_DB", "seata_client")
-	}
+	SetDefaultEnv("MYSQL_DB", "seata_client")
 }

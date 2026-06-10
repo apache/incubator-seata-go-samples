@@ -18,15 +18,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/parnurzeal/gorequest"
 	"seata.apache.org/seata-go/pkg/constant"
 	"seata.apache.org/seata-go/pkg/tm"
 	"seata.apache.org/seata-go/pkg/util/log"
@@ -101,8 +102,7 @@ func insertOrder(ctx context.Context, req OrderRequest) error {
 	return nil
 }
 
-func deductInventory(ctx context.Context, req OrderRequest) (re error) {
-	request := gorequest.New()
+func deductInventory(ctx context.Context, req OrderRequest) error {
 	payload, err := json.Marshal(InventoryRequest{
 		CommodityCode: req.CommodityCode,
 		Count:         req.Count,
@@ -112,24 +112,10 @@ func deductInventory(ctx context.Context, req OrderRequest) (re error) {
 	}
 
 	log.Infof("call inventory service, xid=%s", tm.GetXID(ctx))
-	request.Post(inventoryService+"/deductInventory").
-		Set(constant.XidKey, tm.GetXID(ctx)).
-		Send(string(payload)).
-		Set("Content-Type", "application/json").
-		End(func(response gorequest.Response, body string, errs []error) {
-			if len(errs) > 0 {
-				re = errs[0]
-				return
-			}
-			if response == nil || response.StatusCode != http.StatusOK {
-				re = fmt.Errorf("deduct inventory failed: %s", body)
-			}
-		})
-	return
+	return postJSON(ctx, inventoryService+"/deductInventory", payload)
 }
 
-func deductAccount(ctx context.Context, req OrderRequest) (re error) {
-	request := gorequest.New()
+func deductAccount(ctx context.Context, req OrderRequest) error {
 	payload, err := json.Marshal(AccountRequest{
 		UserID: req.UserID,
 		Money:  req.Money,
@@ -139,18 +125,32 @@ func deductAccount(ctx context.Context, req OrderRequest) (re error) {
 	}
 
 	log.Infof("call account service, xid=%s", tm.GetXID(ctx))
-	request.Post(accountService+"/deductAccount").
-		Set(constant.XidKey, tm.GetXID(ctx)).
-		Send(string(payload)).
-		Set("Content-Type", "application/json").
-		End(func(response gorequest.Response, body string, errs []error) {
-			if len(errs) > 0 {
-				re = errs[0]
-				return
-			}
-			if response == nil || response.StatusCode != http.StatusOK {
-				re = fmt.Errorf("deduct account failed: %s", body)
-			}
-		})
-	return
+	return postJSON(ctx, accountService+"/deductAccount", payload)
+}
+
+func postJSON(ctx context.Context, url string, payload []byte) error {
+	requestCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	httpReq, err := http.NewRequestWithContext(requestCtx, http.MethodPost, url, bytes.NewReader(payload))
+	if err != nil {
+		return err
+	}
+	httpReq.Header.Set(constant.XidKey, tm.GetXID(ctx))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request %s failed: %s", url, strings.TrimSpace(string(body)))
+	}
+	return nil
 }

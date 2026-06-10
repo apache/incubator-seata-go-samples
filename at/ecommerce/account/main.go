@@ -20,7 +20,6 @@ package main
 import (
 	"database/sql"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"seata.apache.org/seata-go-samples/util"
@@ -31,9 +30,14 @@ import (
 
 var db *sql.DB
 
+type apiResponse struct {
+	Message string `json:"message,omitempty"`
+	Error   string `json:"error,omitempty"`
+}
+
 func main() {
 	client.InitPath("conf/seatago.yml")
-	setDefaultEnv("MYSQL_DB", "seata_ecommerce_account")
+	util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_account")
 	db = util.GetAtMySqlDb()
 
 	r := gin.Default()
@@ -49,14 +53,8 @@ func main() {
 func deductAccountHandler(c *gin.Context) {
 	log.Infof("receive deduct account request")
 	if err := deductAccount(c); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, apiResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, "deduct account ok")
-}
-
-func setDefaultEnv(key string, value string) {
-	if os.Getenv(key) == "" {
-		_ = os.Setenv(key, value)
-	}
+	c.JSON(http.StatusOK, apiResponse{Message: "deduct account ok"})
 }

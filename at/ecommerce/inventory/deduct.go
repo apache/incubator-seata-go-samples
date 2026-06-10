@@ -42,7 +42,7 @@ func deductInventory(c *gin.Context) error {
 	}
 
 	sql := "update inventory_tbl set stock = stock - ? where commodity_code = ? and stock >= ?"
-	ret, err := db.ExecContext(c, sql, req.Count, req.CommodityCode, req.Count)
+	ret, err := db.ExecContext(c.Request.Context(), sql, req.Count, req.CommodityCode, req.Count)
 	if err != nil {
 		return err
 	}

@@ -37,6 +37,22 @@ All three operations must succeed or fail together. If the account balance is in
 
 ## Start the Infrastructure
 
+Optionally customize the MySQL root password first:
+
+```bash
+cd at/ecommerce
+cp .env.example .env
+```
+
+Edit `.env` if you want a different password. The sample defaults to `123456` when `MYSQL_ROOT_PASSWORD` is not set.
+
+If you change the password, export the same value for the local Go services before starting them:
+
+```bash
+export MYSQL_ROOT_PASSWORD=your-password
+export MYSQL_PASSWORD="$MYSQL_ROOT_PASSWORD"
+```
+
 ```bash
 cd at/ecommerce
 docker-compose up -d
@@ -113,3 +129,5 @@ mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_order
 mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_inventory.inventory_tbl;"
 mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_account.account_tbl;"
 ```
+
+If you override `MYSQL_ROOT_PASSWORD`, replace `123456` in the commands above with your configured value.
