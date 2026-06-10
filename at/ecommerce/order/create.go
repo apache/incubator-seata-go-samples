@@ -146,9 +146,26 @@ func postJSON(ctx context.Context, url string, payload []byte) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusOK {
+		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1024))
+		return nil
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode == http.StatusConflict {
+		message := strings.TrimSpace(string(body))
+		var response util.APIResponse
+		if err := json.Unmarshal(body, &response); err == nil {
+			if response.Error != "" {
+				message = response.Error
+			} else if response.Message != "" {
+				message = response.Message
+			}
+		}
+		return util.NewConflictError(message)
 	}
 	if resp.StatusCode != http.StatusOK {
 		message := strings.TrimSpace(string(body))

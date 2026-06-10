@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS inventory_tbl (
   UNIQUE KEY uk_commodity_code (commodity_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO inventory_tbl (commodity_code, stock) VALUES ('C100001', 100)
-ON DUPLICATE KEY UPDATE stock = VALUES(stock);
+INSERT INTO inventory_tbl (commodity_code, stock) VALUES ('C100001', 100) AS new
+ON DUPLICATE KEY UPDATE stock = new.stock;
 
 CREATE TABLE IF NOT EXISTS undo_log (
   id BIGINT NOT NULL AUTO_INCREMENT,
@@ -82,8 +82,8 @@ CREATE TABLE IF NOT EXISTS account_tbl (
   UNIQUE KEY uk_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO account_tbl (user_id, balance) VALUES ('U100001', 50)
-ON DUPLICATE KEY UPDATE balance = VALUES(balance);
+INSERT INTO account_tbl (user_id, balance) VALUES ('U100001', 50) AS new
+ON DUPLICATE KEY UPDATE balance = new.balance;
 
 CREATE TABLE IF NOT EXISTS undo_log (
   id BIGINT NOT NULL AUTO_INCREMENT,

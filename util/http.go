@@ -19,6 +19,7 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -57,6 +58,9 @@ type DownstreamError struct {
 }
 
 func (e *DownstreamError) Error() string {
+	if e.StatusCode > 0 {
+		return fmt.Sprintf("downstream returned status %d: %s", e.StatusCode, e.Message)
+	}
 	return e.Message
 }
 
