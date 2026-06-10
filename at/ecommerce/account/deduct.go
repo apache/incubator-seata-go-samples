@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"seata.apache.org/seata-go-samples/util"
 )
 
 type AccountRequest struct {
@@ -32,17 +33,17 @@ type AccountRequest struct {
 func deductAccount(c *gin.Context) error {
 	var req AccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return err
+		return util.NewValidationError(err.Error())
 	}
 	if strings.TrimSpace(req.UserID) == "" {
-		return fmt.Errorf("userId is required")
+		return util.NewValidationError("userId is required")
 	}
 	if req.Money <= 0 {
-		return fmt.Errorf("money must be greater than 0")
+		return util.NewValidationError("money must be greater than 0")
 	}
 
-	sql := "update account_tbl set balance = balance - ? where user_id = ? and balance >= ?"
-	ret, err := db.ExecContext(c.Request.Context(), sql, req.Money, req.UserID, req.Money)
+	query := "update account_tbl set balance = balance - ? where user_id = ? and balance >= ?"
+	ret, err := db.ExecContext(c.Request.Context(), query, req.Money, req.UserID, req.Money)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func deductAccount(c *gin.Context) error {
 		return err
 	}
 	if rows != 1 {
-		return fmt.Errorf("balance not enough")
+		return util.NewConflictError(fmt.Sprintf("insufficient balance for userId %s", req.UserID))
 	}
 	return nil
 }

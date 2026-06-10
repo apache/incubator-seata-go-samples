@@ -18,7 +18,7 @@ services:
     image: mysql:8.0.32
     container_name: ecommerce_at_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env or environment}
     command: --default-authentication-plugin=mysql_native_password --default-time-zone='+08:00'
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
@@ -30,7 +30,7 @@ services:
       - ./sql/mysql_ecommerce.sql:/docker-entrypoint-initdb.d/1_ecommerce.sql:ro
       - ../../dockercompose/mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf:ro
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
 
   seata-server:
     image: seataio/seata-server:1.6.1

@@ -19,8 +19,9 @@ package util
 
 import "os"
 
-func SetDefaultEnv(key string, value string) {
-	if os.Getenv(key) == "" {
-		_ = os.Setenv(key, value)
+func SetDefaultEnv(key string, value string) error {
+	if _, exists := os.LookupEnv(key); exists {
+		return nil
 	}
+	return os.Setenv(key, value)
 }

@@ -34,14 +34,11 @@ var (
 	accountService   = "http://127.0.0.1:18082"
 )
 
-type apiResponse struct {
-	Message string `json:"message,omitempty"`
-	Error   string `json:"error,omitempty"`
-}
-
 func main() {
 	client.InitPath("conf/seatago.yml")
-	util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_order")
+	if err := util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_order"); err != nil {
+		log.Fatalf("set MYSQL_DB default error: %v", err)
+	}
 	if value := os.Getenv("INVENTORY_SERVICE_URL"); value != "" {
 		inventoryService = value
 	}
@@ -61,8 +58,8 @@ func main() {
 func createOrderHandler(c *gin.Context) {
 	log.Infof("receive create order request")
 	if err := createOrder(c); err != nil {
-		c.JSON(http.StatusBadRequest, apiResponse{Error: err.Error()})
+		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, apiResponse{Message: "create order ok"})
+	c.JSON(http.StatusOK, util.APIResponse{Message: "create order ok"})
 }

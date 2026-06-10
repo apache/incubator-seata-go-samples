@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"seata.apache.org/seata-go-samples/util"
 	"seata.apache.org/seata-go/pkg/constant"
 	"seata.apache.org/seata-go/pkg/tm"
 	"seata.apache.org/seata-go/pkg/util/log"
@@ -53,19 +54,19 @@ type AccountRequest struct {
 func createOrder(c *gin.Context) error {
 	var req OrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return err
+		return util.NewValidationError(err.Error())
 	}
 	if strings.TrimSpace(req.UserID) == "" {
-		return fmt.Errorf("userId is required")
+		return util.NewValidationError("userId is required")
 	}
 	if strings.TrimSpace(req.CommodityCode) == "" {
-		return fmt.Errorf("commodityCode is required")
+		return util.NewValidationError("commodityCode is required")
 	}
 	if req.Count <= 0 {
-		return fmt.Errorf("count must be greater than 0")
+		return util.NewValidationError("count must be greater than 0")
 	}
 	if req.Money <= 0 {
-		return fmt.Errorf("money must be greater than 0")
+		return util.NewValidationError("money must be greater than 0")
 	}
 
 	return tm.WithGlobalTx(c.Request.Context(), &tm.GtxConfig{
@@ -86,8 +87,8 @@ func createOrder(c *gin.Context) error {
 }
 
 func insertOrder(ctx context.Context, req OrderRequest) error {
-	sql := "insert into order_tbl(user_id, commodity_code, count, money, status) values (?, ?, ?, ?, ?)"
-	ret, err := db.ExecContext(ctx, sql, req.UserID, req.CommodityCode, req.Count, req.Money, "CREATED")
+	query := "insert into order_tbl(user_id, commodity_code, count, money, status) values (?, ?, ?, ?, ?)"
+	ret, err := db.ExecContext(ctx, query, req.UserID, req.CommodityCode, req.Count, req.Money, "CREATED")
 	if err != nil {
 		return err
 	}
@@ -141,7 +142,7 @@ func postJSON(ctx context.Context, url string, payload []byte) error {
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return err
+		return util.NewDownstreamError(0, fmt.Sprintf("request %s failed: %v", url, err))
 	}
 	defer resp.Body.Close()
 
@@ -150,7 +151,16 @@ func postJSON(ctx context.Context, url string, payload []byte) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("request %s failed: %s", url, strings.TrimSpace(string(body)))
+		message := strings.TrimSpace(string(body))
+		var response util.APIResponse
+		if err := json.Unmarshal(body, &response); err == nil {
+			if response.Error != "" {
+				message = response.Error
+			} else if response.Message != "" {
+				message = response.Message
+			}
+		}
+		return util.NewDownstreamError(resp.StatusCode, message)
 	}
 	return nil
 }

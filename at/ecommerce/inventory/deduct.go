@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"seata.apache.org/seata-go-samples/util"
 )
 
 type InventoryRequest struct {
@@ -32,17 +33,17 @@ type InventoryRequest struct {
 func deductInventory(c *gin.Context) error {
 	var req InventoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return err
+		return util.NewValidationError(err.Error())
 	}
 	if strings.TrimSpace(req.CommodityCode) == "" {
-		return fmt.Errorf("commodityCode is required")
+		return util.NewValidationError("commodityCode is required")
 	}
 	if req.Count <= 0 {
-		return fmt.Errorf("count must be greater than 0")
+		return util.NewValidationError("count must be greater than 0")
 	}
 
-	sql := "update inventory_tbl set stock = stock - ? where commodity_code = ? and stock >= ?"
-	ret, err := db.ExecContext(c.Request.Context(), sql, req.Count, req.CommodityCode, req.Count)
+	query := "update inventory_tbl set stock = stock - ? where commodity_code = ? and stock >= ?"
+	ret, err := db.ExecContext(c.Request.Context(), query, req.Count, req.CommodityCode, req.Count)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func deductInventory(c *gin.Context) error {
 		return err
 	}
 	if rows != 1 {
-		return fmt.Errorf("inventory not enough")
+		return util.NewConflictError(fmt.Sprintf("insufficient inventory for commodityCode %s", req.CommodityCode))
 	}
 	return nil
 }

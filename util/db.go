@@ -19,6 +19,7 @@ package util
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
@@ -45,15 +46,23 @@ func GetXAMySqlDb() *sql.DB {
 }
 
 func defaultEnv() {
-	SetDefaultEnv("MYSQL_HOST", "127.0.0.1")
-	SetDefaultEnv("MYSQL_PORT", "3306")
-	SetDefaultEnv("MYSQL_USERNAME", "root")
-	if os.Getenv("MYSQL_PASSWORD") == "" {
-		if rootPassword := os.Getenv("MYSQL_ROOT_PASSWORD"); rootPassword != "" {
-			_ = os.Setenv("MYSQL_PASSWORD", rootPassword)
-		} else {
-			_ = os.Setenv("MYSQL_PASSWORD", "123456")
+	mustSetDefaultEnv("MYSQL_HOST", "127.0.0.1")
+	mustSetDefaultEnv("MYSQL_PORT", "3306")
+	mustSetDefaultEnv("MYSQL_USERNAME", "root")
+	if _, exists := os.LookupEnv("MYSQL_PASSWORD"); !exists {
+		if rootPassword, rootExists := os.LookupEnv("MYSQL_ROOT_PASSWORD"); rootExists {
+			if err := os.Setenv("MYSQL_PASSWORD", rootPassword); err != nil {
+				panic(fmt.Sprintf("set MYSQL_PASSWORD from MYSQL_ROOT_PASSWORD error: %v", err))
+			}
+		} else if err := os.Setenv("MYSQL_PASSWORD", "123456"); err != nil {
+			panic(fmt.Sprintf("set MYSQL_PASSWORD default error: %v", err))
 		}
 	}
-	SetDefaultEnv("MYSQL_DB", "seata_client")
+	mustSetDefaultEnv("MYSQL_DB", "seata_client")
+}
+
+func mustSetDefaultEnv(key string, value string) {
+	if err := SetDefaultEnv(key, value); err != nil {
+		panic(fmt.Sprintf("set %s default error: %v", key, err))
+	}
 }

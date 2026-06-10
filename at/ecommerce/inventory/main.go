@@ -30,14 +30,11 @@ import (
 
 var db *sql.DB
 
-type apiResponse struct {
-	Message string `json:"message,omitempty"`
-	Error   string `json:"error,omitempty"`
-}
-
 func main() {
 	client.InitPath("conf/seatago.yml")
-	util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_inventory")
+	if err := util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_inventory"); err != nil {
+		log.Fatalf("set MYSQL_DB default error: %v", err)
+	}
 	db = util.GetAtMySqlDb()
 
 	r := gin.Default()
@@ -53,8 +50,8 @@ func main() {
 func deductInventoryHandler(c *gin.Context) {
 	log.Infof("receive deduct inventory request")
 	if err := deductInventory(c); err != nil {
-		c.JSON(http.StatusBadRequest, apiResponse{Error: err.Error()})
+		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, apiResponse{Message: "deduct inventory ok"})
+	c.JSON(http.StatusOK, util.APIResponse{Message: "deduct inventory ok"})
 }

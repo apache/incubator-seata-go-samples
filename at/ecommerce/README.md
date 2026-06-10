@@ -37,19 +37,20 @@ All three operations must succeed or fail together. If the account balance is in
 
 ## Start the Infrastructure
 
-Optionally customize the MySQL root password first:
+Configure the MySQL root password first:
 
 ```bash
 cd at/ecommerce
 cp .env.example .env
 ```
 
-Edit `.env` if you want a different password. The sample defaults to `123456` when `MYSQL_ROOT_PASSWORD` is not set.
+Edit `.env` and set a non-trivial `MYSQL_ROOT_PASSWORD` before starting the sample. The compose file now requires this value explicitly.
 
-If you change the password, export the same value for the local Go services before starting them:
+For the local Go services, export either `MYSQL_PASSWORD` or `MYSQL_ROOT_PASSWORD` with the same value. If `MYSQL_PASSWORD` is unset, the sample falls back to `MYSQL_ROOT_PASSWORD` automatically:
 
 ```bash
 export MYSQL_ROOT_PASSWORD=your-password
+# optional:
 export MYSQL_PASSWORD="$MYSQL_ROOT_PASSWORD"
 ```
 
@@ -106,7 +107,7 @@ curl -X POST http://127.0.0.1:18080/createOrder \
 
 Expected result:
 
-- `account-service` returns `balance not enough`
+- `account-service` returns `insufficient balance for userId U100001`
 - the global transaction fails in `order-service`
 - `seata_ecommerce_order.order_tbl` does not gain a new committed row
 - `seata_ecommerce_inventory.inventory_tbl.stock` remains unchanged from its value before this request
@@ -130,4 +131,4 @@ mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_inven
 mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_account.account_tbl;"
 ```
 
-If you override `MYSQL_ROOT_PASSWORD`, replace `123456` in the commands above with your configured value.
+If you use a different password, replace `123456` in the commands above with your configured value.

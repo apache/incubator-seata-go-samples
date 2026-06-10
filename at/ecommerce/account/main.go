@@ -30,14 +30,11 @@ import (
 
 var db *sql.DB
 
-type apiResponse struct {
-	Message string `json:"message,omitempty"`
-	Error   string `json:"error,omitempty"`
-}
-
 func main() {
 	client.InitPath("conf/seatago.yml")
-	util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_account")
+	if err := util.SetDefaultEnv("MYSQL_DB", "seata_ecommerce_account"); err != nil {
+		log.Fatalf("set MYSQL_DB default error: %v", err)
+	}
 	db = util.GetAtMySqlDb()
 
 	r := gin.Default()
@@ -53,8 +50,8 @@ func main() {
 func deductAccountHandler(c *gin.Context) {
 	log.Infof("receive deduct account request")
 	if err := deductAccount(c); err != nil {
-		c.JSON(http.StatusBadRequest, apiResponse{Error: err.Error()})
+		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, apiResponse{Message: "deduct account ok"})
+	c.JSON(http.StatusOK, util.APIResponse{Message: "deduct account ok"})
 }
