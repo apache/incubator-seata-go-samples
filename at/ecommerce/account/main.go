@@ -50,7 +50,8 @@ func main() {
 func deductAccountHandler(c *gin.Context) {
 	log.Infof("receive deduct account request")
 	if err := deductAccount(c); err != nil {
-		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: err.Error()})
+		log.Errorf("deduct account failed: %v", err)
+		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: util.PublicErrorMessage(err)})
 		return
 	}
 	c.JSON(http.StatusOK, util.APIResponse{Message: "deduct account ok"})

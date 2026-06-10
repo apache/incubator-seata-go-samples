@@ -49,13 +49,13 @@ func defaultEnv() {
 	mustSetDefaultEnv("MYSQL_HOST", "127.0.0.1")
 	mustSetDefaultEnv("MYSQL_PORT", "3306")
 	mustSetDefaultEnv("MYSQL_USERNAME", "root")
-	if _, exists := os.LookupEnv("MYSQL_PASSWORD"); !exists {
-		if rootPassword, rootExists := os.LookupEnv("MYSQL_ROOT_PASSWORD"); rootExists {
+	if password := os.Getenv("MYSQL_PASSWORD"); password == "" {
+		if rootPassword := os.Getenv("MYSQL_ROOT_PASSWORD"); rootPassword != "" {
 			if err := os.Setenv("MYSQL_PASSWORD", rootPassword); err != nil {
 				panic(fmt.Sprintf("set MYSQL_PASSWORD from MYSQL_ROOT_PASSWORD error: %v", err))
 			}
-		} else if err := os.Setenv("MYSQL_PASSWORD", "123456"); err != nil {
-			panic(fmt.Sprintf("set MYSQL_PASSWORD default error: %v", err))
+		} else {
+			panic("MYSQL_PASSWORD or MYSQL_ROOT_PASSWORD must be set before starting the sample")
 		}
 	}
 	mustSetDefaultEnv("MYSQL_DB", "seata_client")

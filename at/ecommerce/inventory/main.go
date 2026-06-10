@@ -50,7 +50,8 @@ func main() {
 func deductInventoryHandler(c *gin.Context) {
 	log.Infof("receive deduct inventory request")
 	if err := deductInventory(c); err != nil {
-		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: err.Error()})
+		log.Errorf("deduct inventory failed: %v", err)
+		c.JSON(util.StatusCodeForError(err), util.APIResponse{Error: util.PublicErrorMessage(err)})
 		return
 	}
 	c.JSON(http.StatusOK, util.APIResponse{Message: "deduct inventory ok"})

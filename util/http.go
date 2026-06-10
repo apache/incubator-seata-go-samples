@@ -77,11 +77,33 @@ func StatusCodeForError(err error) int {
 
 	var downstreamErr *DownstreamError
 	if errors.As(err, &downstreamErr) {
-		if downstreamErr.StatusCode == http.StatusConflict {
-			return http.StatusConflict
+		if downstreamErr.StatusCode >= 400 && downstreamErr.StatusCode < 500 {
+			return downstreamErr.StatusCode
 		}
 		return http.StatusBadGateway
 	}
 
 	return http.StatusInternalServerError
+}
+
+func PublicErrorMessage(err error) string {
+	var validationErr *ValidationError
+	if errors.As(err, &validationErr) {
+		return validationErr.Error()
+	}
+
+	var conflictErr *ConflictError
+	if errors.As(err, &conflictErr) {
+		return conflictErr.Error()
+	}
+
+	var downstreamErr *DownstreamError
+	if errors.As(err, &downstreamErr) {
+		if downstreamErr.StatusCode >= 400 && downstreamErr.StatusCode < 500 {
+			return "dependent service rejected the request"
+		}
+		return "dependent service is unavailable"
+	}
+
+	return "internal server error"
 }

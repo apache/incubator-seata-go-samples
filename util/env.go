@@ -20,7 +20,8 @@ package util
 import "os"
 
 func SetDefaultEnv(key string, value string) error {
-	if _, exists := os.LookupEnv(key); exists {
+	currentValue, exists := os.LookupEnv(key)
+	if exists && currentValue != "" {
 		return nil
 	}
 	return os.Setenv(key, value)

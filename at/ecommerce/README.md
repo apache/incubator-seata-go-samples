@@ -126,9 +126,7 @@ docker-compose up -d
 ## Verify in MySQL
 
 ```bash
-mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_order.order_tbl;"
-mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_inventory.inventory_tbl;"
-mysql -h127.0.0.1 -P3306 -uroot -p123456 -e "SELECT * FROM seata_ecommerce_account.account_tbl;"
+mysql -h127.0.0.1 -P3306 -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SELECT * FROM seata_ecommerce_order.order_tbl;"
+mysql -h127.0.0.1 -P3306 -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SELECT * FROM seata_ecommerce_inventory.inventory_tbl;"
+mysql -h127.0.0.1 -P3306 -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SELECT * FROM seata_ecommerce_account.account_tbl;"
 ```
-
-If you use a different password, replace `123456` in the commands above with your configured value.
