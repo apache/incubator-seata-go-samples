@@ -155,29 +155,26 @@ func postJSON(ctx context.Context, url string, payload []byte) error {
 	if err != nil {
 		return err
 	}
+	message := parseAPIResponseMessage(body)
 	if resp.StatusCode == http.StatusConflict {
-		message := strings.TrimSpace(string(body))
-		var response util.APIResponse
-		if err := json.Unmarshal(body, &response); err == nil {
-			if response.Error != "" {
-				message = response.Error
-			} else if response.Message != "" {
-				message = response.Message
-			}
-		}
 		return util.NewConflictError(message)
 	}
-	if resp.StatusCode != http.StatusOK {
-		message := strings.TrimSpace(string(body))
-		var response util.APIResponse
-		if err := json.Unmarshal(body, &response); err == nil {
-			if response.Error != "" {
-				message = response.Error
-			} else if response.Message != "" {
-				message = response.Message
-			}
-		}
-		return util.NewDownstreamError(resp.StatusCode, message)
+
+	return util.NewDownstreamError(resp.StatusCode, message)
+}
+
+func parseAPIResponseMessage(body []byte) string {
+	message := strings.TrimSpace(string(body))
+
+	var response util.APIResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return message
 	}
-	return nil
+	if response.Error != "" {
+		return response.Error
+	}
+	if response.Message != "" {
+		return response.Message
+	}
+	return message
 }

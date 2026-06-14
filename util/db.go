@@ -45,6 +45,14 @@ func GetXAMySqlDb() *sql.DB {
 	return dbAt
 }
 
+func SetDefaultEnv(key string, value string) error {
+	currentValue, exists := os.LookupEnv(key)
+	if exists && currentValue != "" {
+		return nil
+	}
+	return os.Setenv(key, value)
+}
+
 func defaultEnv() {
 	mustSetDefaultEnv("MYSQL_HOST", "127.0.0.1")
 	mustSetDefaultEnv("MYSQL_PORT", "3306")
