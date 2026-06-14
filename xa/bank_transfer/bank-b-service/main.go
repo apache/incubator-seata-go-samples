@@ -53,7 +53,9 @@ func main() {
 
 	r := gin.Default()
 	r.ContextWithFallback = true
+	// Read-only routes registered before Use() skip TransactionMiddleware.
 	r.GET("/accounts/:accountNo", accountHandler)
+	// Credit participates in the global XA branch; middleware injects the global XID into request context.
 	r.Use(ginmiddleware.TransactionMiddleware())
 	r.POST("/credit", creditHandler)
 
@@ -78,7 +80,7 @@ func creditHandler(c *gin.Context) {
 }
 
 func accountHandler(c *gin.Context) {
-	acc, err := getAccount(c, c.Param("accountNo"))
+	acc, err := getAccount(c.Request.Context(), c.Param("accountNo"))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

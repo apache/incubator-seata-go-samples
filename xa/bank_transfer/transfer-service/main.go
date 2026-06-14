@@ -122,7 +122,10 @@ func postJSON(ctx context.Context, url string, payload map[string]any) error {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("post %s failed to read response body: %w", url, err)
+	}
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("post %s returned %s: %s", url, resp.Status, string(respBody))
 	}
