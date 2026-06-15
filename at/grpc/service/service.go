@@ -25,8 +25,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	__ "seata.apache.org/seata-go-samples/at/grpc/pb"
-
-	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
+	"seata.apache.org/seata-go-samples/util"
 )
 
 var (
@@ -34,11 +33,7 @@ var (
 )
 
 func InitService() {
-	var err error
-	db, err = sql.Open(sql2.SeataATMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
-	if err != nil {
-		panic("init service error")
-	}
+	db = util.GetAtMySqlDb()
 }
 
 type GrpcBusinessService struct {

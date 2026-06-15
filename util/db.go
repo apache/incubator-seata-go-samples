@@ -44,6 +44,16 @@ func GetXAMySqlDb() *sql.DB {
 	return dbAt
 }
 
+func GetTccMySqlDb() *sql.DB {
+	defaultEnv()
+	dsn := os.ExpandEnv("${MYSQL_USERNAME}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DB}?charset=utf8&parseTime=True")
+	dbTcc, err := sql.Open("mysql", dsn)
+	if err != nil {
+		panic("init tcc mysql driver error")
+	}
+	return dbTcc
+}
+
 func defaultEnv() {
 	if os.Getenv("MYSQL_HOST") == "" {
 		_ = os.Setenv("MYSQL_HOST", "127.0.0.1")
