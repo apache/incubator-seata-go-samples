@@ -19,13 +19,12 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"seata.apache.org/seata-go-samples/util"
 	"seata.apache.org/seata-go/pkg/client"
-	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
 	"seata.apache.org/seata-go/pkg/tm"
 )
 
@@ -72,11 +71,9 @@ func initConfig() {
 var gormDB *gorm.DB
 
 func initDB() {
-	sqlDB, err := sql.Open(sql2.SeataXAMySQLDriver, "root:12345678@tcp(127.0.0.1:3306)/seata_client?multiStatements=true&interpolateParams=true")
-	if err != nil {
-		panic("init service error")
-	}
+	sqlDB := util.GetXAMySqlDb()
 
+	var err error
 	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
