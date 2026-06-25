@@ -55,7 +55,7 @@ func defaultEnv() {
 		_ = os.Setenv("MYSQL_USERNAME", "root")
 	}
 	if os.Getenv("MYSQL_PASSWORD") == "" {
-		_ = os.Setenv("MYSQL_PASSWORD", "123456")
+		_ = os.Setenv("MYSQL_PASSWORD", "12345678")
 	}
 	if os.Getenv("MYSQL_DB") == "" {
 		_ = os.Setenv("MYSQL_DB", "seata_client")

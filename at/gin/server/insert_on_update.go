@@ -29,13 +29,13 @@ func insertOnUpdateDataSuccess(ctx context.Context) error {
 	ret, err := db.ExecContext(ctx, sql, 1, "NO-100001", "C100000", 100, nil, "init desc", fmt.Sprintf("insert on update descs %d", time.Now().Unix()))
 	if err != nil {
 		fmt.Printf("update failed, err:%v\n", err)
-		return nil
+		return err
 	}
 
 	rows, err := ret.RowsAffected()
 	if err != nil {
 		fmt.Printf("update failed, err:%v\n", err)
-		return nil
+		return err
 	}
 	fmt.Printf("update success： %d.\n", rows)
 	return nil

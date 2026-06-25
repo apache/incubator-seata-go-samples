@@ -56,7 +56,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, "insertOnUpdateData failure")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, "insertOnUpdateData failure")
+		c.JSON(http.StatusOK, "insertOnUpdateData ok")
 	})
 
 	if err := r.Run(":8080"); err != nil {
