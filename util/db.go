@@ -45,6 +45,16 @@ func GetXAMySqlDb() *sql.DB {
 	return dbAt
 }
 
+func GetTccMySqlDb() *sql.DB {
+	defaultEnv()
+	dsn := os.ExpandEnv("${MYSQL_USERNAME}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DB}?charset=utf8&parseTime=True")
+	dbTcc, err := sql.Open("mysql", dsn)
+	if err != nil {
+		panic("init tcc mysql driver error")
+	}
+	return dbTcc
+}
+
 func SetDefaultEnv(key string, value string) error {
 	currentValue, exists := os.LookupEnv(key)
 	if exists && currentValue != "" {
@@ -63,7 +73,7 @@ func defaultEnv() {
 				panic(fmt.Sprintf("set MYSQL_PASSWORD from MYSQL_ROOT_PASSWORD error: %v", err))
 			}
 		} else {
-			panic("MYSQL_PASSWORD or MYSQL_ROOT_PASSWORD must be set before starting the sample")
+			mustSetDefaultEnv("MYSQL_PASSWORD", "12345678")
 		}
 	}
 	mustSetDefaultEnv("MYSQL_DB", "seata_client")

@@ -19,19 +19,14 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"sync"
 
+	"seata.apache.org/seata-go-samples/util"
 	"seata.apache.org/seata-go/pkg/rm/tcc"
 	"seata.apache.org/seata-go/pkg/rm/tcc/fence"
 	"seata.apache.org/seata-go/pkg/tm"
 	"seata.apache.org/seata-go/pkg/util/log"
-)
-
-const (
-	DriverName = "mysql"
-	Url        = "root:root@tcp(127.0.0.1:3306)/seata?charset=utf8&parseTime=True"
 )
 
 var (
@@ -59,10 +54,7 @@ func NewTestTCCServiceBusinessProxy() *tcc.TCCServiceProxy {
 }
 
 func (T TestTCCServiceBusiness) Prepare(ctx context.Context, params interface{}) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
@@ -88,10 +80,7 @@ func (T TestTCCServiceBusiness) Prepare(ctx context.Context, params interface{})
 }
 
 func (T TestTCCServiceBusiness) Commit(ctx context.Context, businessActionContext *tm.BusinessActionContext) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
@@ -117,10 +106,7 @@ func (T TestTCCServiceBusiness) Commit(ctx context.Context, businessActionContex
 }
 
 func (T TestTCCServiceBusiness) Rollback(ctx context.Context, businessActionContext *tm.BusinessActionContext) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
@@ -161,18 +147,12 @@ func NewTestTCCServiceBusiness2Proxy() *tcc.TCCServiceProxy {
 		if err != nil {
 			panic(fmt.Errorf("TestTCCServiceBusiness2 get tcc service proxy error, %v", err.Error()))
 		}
-		if err != nil {
-			panic(fmt.Errorf("TestTCCServiceBusiness2 register resource error, %v", err.Error()))
-		}
 	})
 	return tccService2
 }
 
 func (T TestTCCServiceBusiness2) Prepare(ctx context.Context, params interface{}) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
@@ -198,10 +178,7 @@ func (T TestTCCServiceBusiness2) Prepare(ctx context.Context, params interface{}
 }
 
 func (T TestTCCServiceBusiness2) Commit(ctx context.Context, businessActionContext *tm.BusinessActionContext) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
@@ -227,10 +204,7 @@ func (T TestTCCServiceBusiness2) Commit(ctx context.Context, businessActionConte
 }
 
 func (T TestTCCServiceBusiness2) Rollback(ctx context.Context, businessActionContext *tm.BusinessActionContext) (b bool, err error) {
-	db, err := sql.Open(DriverName, Url)
-	if err != nil {
-		return false, fmt.Errorf("database connect failed, msg :%s", err.Error())
-	}
+	db := util.GetTccMySqlDb()
 	defer func() {
 		_ = db.Close()
 	}()
