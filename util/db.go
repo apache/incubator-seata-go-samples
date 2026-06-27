@@ -19,6 +19,7 @@ package util
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	sql2 "seata.apache.org/seata-go/pkg/datasource/sql"
@@ -54,20 +55,32 @@ func GetTccMySqlDb() *sql.DB {
 	return dbTcc
 }
 
+func SetDefaultEnv(key string, value string) error {
+	currentValue, exists := os.LookupEnv(key)
+	if exists && currentValue != "" {
+		return nil
+	}
+	return os.Setenv(key, value)
+}
+
 func defaultEnv() {
-	if os.Getenv("MYSQL_HOST") == "" {
-		_ = os.Setenv("MYSQL_HOST", "127.0.0.1")
+	mustSetDefaultEnv("MYSQL_HOST", "127.0.0.1")
+	mustSetDefaultEnv("MYSQL_PORT", "3306")
+	mustSetDefaultEnv("MYSQL_USERNAME", "root")
+	if password := os.Getenv("MYSQL_PASSWORD"); password == "" {
+		if rootPassword := os.Getenv("MYSQL_ROOT_PASSWORD"); rootPassword != "" {
+			if err := os.Setenv("MYSQL_PASSWORD", rootPassword); err != nil {
+				panic(fmt.Sprintf("set MYSQL_PASSWORD from MYSQL_ROOT_PASSWORD error: %v", err))
+			}
+		} else {
+			mustSetDefaultEnv("MYSQL_PASSWORD", "12345678")
+		}
 	}
-	if os.Getenv("MYSQL_PORT") == "" {
-		_ = os.Setenv("MYSQL_PORT", "3306")
-	}
-	if os.Getenv("MYSQL_USERNAME") == "" {
-		_ = os.Setenv("MYSQL_USERNAME", "root")
-	}
-	if os.Getenv("MYSQL_PASSWORD") == "" {
-		_ = os.Setenv("MYSQL_PASSWORD", "12345678")
-	}
-	if os.Getenv("MYSQL_DB") == "" {
-		_ = os.Setenv("MYSQL_DB", "seata_client")
+	mustSetDefaultEnv("MYSQL_DB", "seata_client")
+}
+
+func mustSetDefaultEnv(key string, value string) {
+	if err := SetDefaultEnv(key, value); err != nil {
+		panic(fmt.Sprintf("set %s default error: %v", key, err))
 	}
 }

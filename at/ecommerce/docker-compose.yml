@@ -1,0 +1,46 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  mysql:
+    image: mysql:8.0.32
+    container_name: ecommerce_at_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env or environment}
+    command: --default-authentication-plugin=mysql_native_password --default-time-zone='+08:00'
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    volumes:
+      - ./sql/mysql_ecommerce.sql:/docker-entrypoint-initdb.d/1_ecommerce.sql:ro
+      - ../../dockercompose/mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf:ro
+    ports:
+      - "127.0.0.1:3306:3306"
+
+  seata-server:
+    image: seataio/seata-server:1.6.1
+    container_name: ecommerce_at_seata_server
+    environment:
+      - SEATA_PORT=8091
+      - STORE_MODE=file
+    ports:
+      - "8091:8091"
+      - "7091:7091"
+    depends_on:
+      mysql:
+        condition: service_healthy
