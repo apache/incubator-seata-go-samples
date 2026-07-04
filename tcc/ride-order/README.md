@@ -34,7 +34,7 @@ must be explicitly released.
 | **order-service** | 8001 | Create pending order | Mark order confirmed | Mark order cancelled |
 | **dispatch-service** | 8002 | Reserve available driver | Mark driver busy | Release driver back to pool |
 | **pricing-service** | 8003 | Lock estimated fare | Confirm fare lock | Release fare lock |
-| **coupon-service** | 8004 | Freeze user's coupon | Mark coupon used | Unfreeze coupon |
+| **coupon-service** | 8004 | Freeze an available coupon | Mark coupon used | Unfreeze coupon |
 | **capacity-service** | 8005 | Reserve vehicle slot (+1) | Keep reservation | Release slot (-1) |
 
 The **initiator** (ride-order-service) acts as the Transaction Manager (TM) and
@@ -113,6 +113,14 @@ All Confirm and Cancel methods are idempotent:
   by XID. Once a Confirm/Cancel completes, the entry is removed. Subsequent calls for the
   same XID find no entry and return success immediately.
 
+> **Limitation (by design, to keep the sample small):** the XID→resource mapping lives in
+> process memory. It makes Confirm/Cancel idempotent against TC retries and handles *empty
+> rollback* (a branch whose Try failed), but it is **not crash-durable** and does **not** guard
+> against TCC *suspension* (a delayed Try arriving after Cancel). If a service restarts between
+> Try and the TC callback, the mapping is lost and the reserved resource is left stranded.
+> Production code should use the seata-go **TCC fence** (`tcc_fence_log` table) instead — see the
+> [`tcc/fence`](../fence) sample.
+
 ## How to Run
 
 ### 1. Start infrastructure
@@ -151,6 +159,17 @@ service logs `[*-Try]` followed by `[*-Confirm]`.
 **Scenario 2** (dispatch failure): The initiator logs four successful Prepare calls,
 then `dispatch-service prepare failed`. Each of the four services logs `[*-Cancel]`,
 restoring all resources.
+
+### Reset between runs
+
+Each successful ride consumes real resources (a coupon becomes *used*, a driver becomes
+*busy*) — that is the correct business outcome, so those rows are **not** restored on Confirm.
+The seed data (6 coupons, 6 drivers) is enough for several runs. To start completely fresh,
+recreate the database volume:
+
+```bash
+docker-compose down -v && docker-compose up -d
+```
 
 ### Customize MySQL connection
 

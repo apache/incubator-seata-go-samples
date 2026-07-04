@@ -37,7 +37,10 @@ CREATE TABLE IF NOT EXISTS drivers (
 INSERT INTO drivers (name, status) VALUES
     ('Driver-A', 0),
     ('Driver-B', 0),
-    ('Driver-C', 0);
+    ('Driver-C', 0),
+    ('Driver-D', 0),
+    ('Driver-E', 0),
+    ('Driver-F', 0);
 
 -- price locks
 CREATE TABLE IF NOT EXISTS price_locks (
@@ -56,6 +59,10 @@ CREATE TABLE IF NOT EXISTS coupons (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO coupons (user_id, discount, status) VALUES
+    ('passenger-001', 500, 0),
+    ('passenger-001', 300, 0),
+    ('passenger-001', 500, 0),
+    ('passenger-001', 300, 0),
     ('passenger-001', 500, 0),
     ('passenger-001', 300, 0);
 

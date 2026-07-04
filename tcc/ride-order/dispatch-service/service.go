@@ -45,7 +45,10 @@ func (s *DispatchService) GetActionName() string {
 // Prepare reserves an available driver (Try phase).
 // When SimulateFail is true, returns an error to trigger global rollback.
 func (s *DispatchService) Prepare(ctx context.Context, params interface{}) (bool, error) {
-	req := params.(DispatchRequest)
+	req, ok := params.(DispatchRequest)
+	if !ok {
+		return false, fmt.Errorf("invalid params type %T, want DispatchRequest", params)
+	}
 	if req.SimulateFail {
 		log.Infof("[Dispatch-Try] SIMULATED FAILURE: no available driver, xid=%s", tm.GetXID(ctx))
 		return false, fmt.Errorf("no available driver found (simulated failure)")

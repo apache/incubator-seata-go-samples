@@ -43,7 +43,10 @@ func (s *OrderService) GetActionName() string {
 
 // Prepare creates a pending ride order (Try phase).
 func (s *OrderService) Prepare(ctx context.Context, params interface{}) (bool, error) {
-	req := params.(OrderRequest)
+	req, ok := params.(OrderRequest)
+	if !ok {
+		return false, fmt.Errorf("invalid params type %T, want OrderRequest", params)
+	}
 	result, err := common.DB.ExecContext(ctx,
 		"INSERT INTO ride_orders (passenger_id, status) VALUES (?, 0)", req.PassengerID)
 	if err != nil {

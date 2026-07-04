@@ -44,7 +44,10 @@ func (s *PricingService) GetActionName() string {
 
 // Prepare locks the estimated fare (Try phase).
 func (s *PricingService) Prepare(ctx context.Context, params interface{}) (bool, error) {
-	req := params.(PricingRequest)
+	req, ok := params.(PricingRequest)
+	if !ok {
+		return false, fmt.Errorf("invalid params type %T, want PricingRequest", params)
+	}
 	result, err := common.DB.ExecContext(ctx,
 		"INSERT INTO price_locks (order_id, amount, status) VALUES (?, ?, 0)", req.OrderID, req.Amount)
 	if err != nil {

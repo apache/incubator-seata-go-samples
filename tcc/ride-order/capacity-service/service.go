@@ -43,7 +43,10 @@ func (s *CapacityService) GetActionName() string {
 
 // Prepare reserves a vehicle slot: reserved_slots + 1 (Try phase).
 func (s *CapacityService) Prepare(ctx context.Context, params interface{}) (bool, error) {
-	req := params.(CapacityRequest)
+	req, ok := params.(CapacityRequest)
+	if !ok {
+		return false, fmt.Errorf("invalid params type %T, want CapacityRequest", params)
+	}
 	result, err := common.DB.ExecContext(ctx,
 		"UPDATE vehicle_capacity SET reserved_slots=reserved_slots+1 WHERE id=? AND reserved_slots<total_slots",
 		req.CapacityID)

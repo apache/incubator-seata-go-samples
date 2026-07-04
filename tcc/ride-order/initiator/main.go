@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -80,48 +81,46 @@ func main() {
 	// Wait for Cancel callbacks
 	time.Sleep(3 * time.Second)
 	fmt.Println("\n========== Done ==========")
-
-	<-make(chan struct{})
 }
 
 func rideOrderBusiness(ctx context.Context, simulateDispatchFail bool) error {
 	xid := tm.GetXID(ctx)
 
-	// 1. Create pending order
-	if err := callService(ctx, orderServiceURL, fmt.Sprintf(
-		`{"passenger_id":"passenger-001"}`)); err != nil {
+	// 1. Create pending order — order-service returns the generated order id.
+	body, err := callService(ctx, orderServiceURL, `{"passenger_id":"passenger-001"}`)
+	if err != nil {
 		return fmt.Errorf("order-service prepare failed: %v", err)
 	}
-	log.Infof("[Initiator] order-service prepared, xid=%s", xid)
+	var order struct {
+		OrderID int64 `json:"order_id"`
+	}
+	if err := json.Unmarshal([]byte(body), &order); err != nil || order.OrderID == 0 {
+		return fmt.Errorf("order-service returned no order id: body=%s err=%v", body, err)
+	}
+	log.Infof("[Initiator] order-service prepared, order_id=%d, xid=%s", order.OrderID, xid)
 
-	// 2. Lock estimated fare
-	if err := callService(ctx, pricingServiceURL, fmt.Sprintf(
-		`{"order_id":1,"amount":2800}`)); err != nil {
+	// 2. Lock estimated fare for the real order id.
+	if _, err := callService(ctx, pricingServiceURL, fmt.Sprintf(
+		`{"order_id":%d,"amount":2800}`, order.OrderID)); err != nil {
 		return fmt.Errorf("pricing-service prepare failed: %v", err)
 	}
 	log.Infof("[Initiator] pricing-service prepared, xid=%s", xid)
 
-	// 3. Freeze coupon
-	couponID := 1
-	if simulateDispatchFail {
-		couponID = 2 // use coupon#2 because coupon#1 was consumed in scenario 1
-	}
-	if err := callService(ctx, couponServiceURL, fmt.Sprintf(
-		`{"coupon_id":%d}`, couponID)); err != nil {
+	// 3. Freeze an available coupon for the passenger (selected dynamically by the service).
+	if _, err := callService(ctx, couponServiceURL, `{"passenger_id":"passenger-001"}`); err != nil {
 		return fmt.Errorf("coupon-service prepare failed: %v", err)
 	}
 	log.Infof("[Initiator] coupon-service prepared, xid=%s", xid)
 
-	// 4. Reserve vehicle slot
-	if err := callService(ctx, capacityServiceURL,
-		`{"capacity_id":1}`); err != nil {
+	// 4. Reserve vehicle slot.
+	if _, err := callService(ctx, capacityServiceURL, `{"capacity_id":1}`); err != nil {
 		return fmt.Errorf("capacity-service prepare failed: %v", err)
 	}
 	log.Infof("[Initiator] capacity-service prepared, xid=%s", xid)
 
-	// 5. Reserve driver — THIS WILL FAIL in scenario 2
-	if err := callService(ctx, dispatchServiceURL, fmt.Sprintf(
-		`{"order_id":1,"simulate_fail":%t}`, simulateDispatchFail)); err != nil {
+	// 5. Reserve driver — THIS WILL FAIL in scenario 2.
+	if _, err := callService(ctx, dispatchServiceURL, fmt.Sprintf(
+		`{"order_id":%d,"simulate_fail":%t}`, order.OrderID, simulateDispatchFail)); err != nil {
 		return fmt.Errorf("dispatch-service prepare failed: %v", err)
 	}
 	log.Infof("[Initiator] dispatch-service prepared, xid=%s", xid)
@@ -129,7 +128,7 @@ func rideOrderBusiness(ctx context.Context, simulateDispatchFail bool) error {
 	return nil
 }
 
-func callService(ctx context.Context, serviceURL string, jsonBody string) error {
+func callService(ctx context.Context, serviceURL string, jsonBody string) (string, error) {
 	resp, body, errs := gorequest.New().
 		Post(serviceURL+"/prepare").
 		Set(constant.XidKey, tm.GetXID(ctx)).
@@ -137,10 +136,10 @@ func callService(ctx context.Context, serviceURL string, jsonBody string) error 
 		Send(jsonBody).
 		End()
 	if len(errs) != 0 {
-		return errs[0]
+		return "", errs[0]
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("service returned %d: %s", resp.StatusCode, body)
+		return "", fmt.Errorf("service returned %d: %s", resp.StatusCode, body)
 	}
-	return nil
+	return body, nil
 }

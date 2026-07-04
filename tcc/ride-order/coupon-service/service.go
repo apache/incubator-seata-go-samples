@@ -29,7 +29,7 @@ import (
 )
 
 type CouponRequest struct {
-	CouponID int64 `json:"coupon_id"`
+	PassengerID string `json:"passenger_id"`
 }
 
 type CouponService struct{}
@@ -41,21 +41,33 @@ func (s *CouponService) GetActionName() string {
 	return "CouponService"
 }
 
-// Prepare freezes the coupon: available -> frozen (Try phase).
+// Prepare freezes an available coupon for the passenger: available -> frozen (Try phase).
+// The coupon is selected dynamically so the sample stays re-runnable (no hardcoded id
+// that gets permanently consumed after the first Confirm).
 func (s *CouponService) Prepare(ctx context.Context, params interface{}) (bool, error) {
-	req := params.(CouponRequest)
+	req, ok := params.(CouponRequest)
+	if !ok {
+		return false, fmt.Errorf("invalid params type %T, want CouponRequest", params)
+	}
+
+	var couponID int64
+	err := common.DB.QueryRowContext(ctx,
+		"SELECT id FROM coupons WHERE user_id=? AND status=0 ORDER BY id LIMIT 1", req.PassengerID).Scan(&couponID)
+	if err != nil {
+		return false, fmt.Errorf("no available coupon for %s: %v", req.PassengerID, err)
+	}
+	// Guard against a concurrent transaction grabbing the same coupon.
 	result, err := common.DB.ExecContext(ctx,
-		"UPDATE coupons SET status=1 WHERE id=? AND status=0", req.CouponID)
+		"UPDATE coupons SET status=1 WHERE id=? AND status=0", couponID)
 	if err != nil {
 		return false, fmt.Errorf("coupon prepare failed: %v", err)
 	}
-	rows, _ := result.RowsAffected()
-	if rows == 0 {
-		return false, fmt.Errorf("coupon %d not available", req.CouponID)
+	if rows, _ := result.RowsAffected(); rows == 0 {
+		return false, fmt.Errorf("coupon %d no longer available", couponID)
 	}
 	xid := tm.GetXID(ctx)
-	couponRecords.Store(xid, req.CouponID)
-	log.Infof("[Coupon-Try] froze coupon %d, xid=%s", req.CouponID, xid)
+	couponRecords.Store(xid, couponID)
+	log.Infof("[Coupon-Try] froze coupon %d for %s, xid=%s", couponID, req.PassengerID, xid)
 	return true, nil
 }
 

@@ -25,6 +25,7 @@ import (
 	"seata.apache.org/seata-go/pkg/client"
 	ginmiddleware "seata.apache.org/seata-go/pkg/integration/gin"
 	"seata.apache.org/seata-go/pkg/rm/tcc"
+	"seata.apache.org/seata-go/pkg/tm"
 	"seata.apache.org/seata-go/pkg/util/log"
 
 	"seata.apache.org/seata-go-samples/tcc/ride-order/common"
@@ -48,11 +49,18 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if _, err := proxy.Prepare(c.Request.Context(), req); err != nil {
+		ctx := c.Request.Context()
+		if _, err := proxy.Prepare(ctx, req); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "prepare ok"})
+		// Return the generated order id so the initiator can thread it through
+		// the downstream service calls (pricing, dispatch) instead of hardcoding it.
+		var orderID int64
+		if v, ok := orderRecords.Load(tm.GetXID(ctx)); ok {
+			orderID, _ = v.(int64)
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "prepare ok", "order_id": orderID})
 	})
 
 	if err := r.Run(":8001"); err != nil {
