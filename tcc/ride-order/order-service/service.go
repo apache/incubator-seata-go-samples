@@ -75,7 +75,7 @@ func (s *OrderService) Commit(ctx context.Context, bac *tm.BusinessActionContext
 	return true, nil
 }
 
-// Rollback cancels the order: pending -> cancelled. Idempotent via status check.
+// Rollback cancels the order: pending -> canceled. Idempotent via status check.
 func (s *OrderService) Rollback(ctx context.Context, bac *tm.BusinessActionContext) (bool, error) {
 	orderID, ok := orderRecords.Load(bac.Xid)
 	if !ok {
@@ -87,6 +87,6 @@ func (s *OrderService) Rollback(ctx context.Context, bac *tm.BusinessActionConte
 		return false, fmt.Errorf("order cancel failed: %v", err)
 	}
 	orderRecords.Delete(bac.Xid)
-	log.Infof("[Order-Cancel] order %d cancelled, xid=%s", orderID, bac.Xid)
+	log.Infof("[Order-Cancel] order %d canceled, xid=%s", orderID, bac.Xid)
 	return true, nil
 }

@@ -22,7 +22,7 @@ USE seata_ride;
 CREATE TABLE IF NOT EXISTS ride_orders (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     passenger_id VARCHAR(64) NOT NULL,
-    status TINYINT NOT NULL DEFAULT 0 COMMENT '0=pending, 1=confirmed, 2=cancelled',
+    status TINYINT NOT NULL DEFAULT 0 COMMENT '0=pending, 1=confirmed, 2=canceled',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

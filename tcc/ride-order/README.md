@@ -31,7 +31,7 @@ must be explicitly released.
 
 | Service | Port | Try (Reserve) | Confirm (Commit) | Cancel (Release) |
 |---------|------|--------------|-------------------|------------------|
-| **order-service** | 8001 | Create pending order | Mark order confirmed | Mark order cancelled |
+| **order-service** | 8001 | Create pending order | Mark order confirmed | Mark order canceled |
 | **dispatch-service** | 8002 | Reserve available driver | Mark driver busy | Release driver back to pool |
 | **pricing-service** | 8003 | Lock estimated fare | Confirm fare lock | Release fare lock |
 | **coupon-service** | 8004 | Freeze an available coupon | Mark coupon used | Unfreeze coupon |
@@ -95,7 +95,7 @@ initiator (TM)
     
     Try failed → Seata TC triggers Cancel on all registered branches:
     
-    ├── order-service.Cancel()      → order cancelled
+    ├── order-service.Cancel()      → order canceled
     ├── pricing-service.Cancel()    → fare released
     ├── coupon-service.Cancel()     → coupon unfrozen
     └── capacity-service.Cancel()   → slot released
@@ -108,7 +108,7 @@ initiator (TM)
 All Confirm and Cancel methods are idempotent:
 
 - **Status-based SQL conditions**: Each UPDATE uses `WHERE status=<expected>`, so repeated
-  calls on an already-committed/cancelled record affect zero rows and return success.
+  calls on an already-committed/canceled record affect zero rows and return success.
 - **In-memory deduplication**: Each service tracks active transactions in a `sync.Map` keyed
   by XID. Once a Confirm/Cancel completes, the entry is removed. Subsequent calls for the
   same XID find no entry and return success immediately.
