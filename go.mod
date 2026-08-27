@@ -13,12 +13,16 @@ require (
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
 	seata.apache.org/seata-go v1.2.1-0.20251220113411-b18bcb019b65
+	seata.apache.org/seata-go/v2 v2.1.1-0.20260827063834-3bcd201fd293
 )
 
 require (
 	cloud.google.com/go/compute v1.20.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/google/cel-go v0.18.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.4.3 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/robertkrimen/otto v0.4.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
