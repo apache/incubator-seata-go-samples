@@ -38,6 +38,9 @@ const (
 	pricingServiceURL  = "http://127.0.0.1:8003"
 	couponServiceURL   = "http://127.0.0.1:8004"
 	capacityServiceURL = "http://127.0.0.1:8005"
+
+	// Bound each Try call so a hung service cannot block the global transaction.
+	prepareTimeout = 10 * time.Second
 )
 
 func main() {
@@ -130,6 +133,7 @@ func rideOrderBusiness(ctx context.Context, simulateDispatchFail bool) error {
 
 func callService(ctx context.Context, serviceURL string, jsonBody string) (string, error) {
 	resp, body, errs := gorequest.New().
+		Timeout(prepareTimeout).
 		Post(serviceURL+"/prepare").
 		Set(constant.XidKey, tm.GetXID(ctx)).
 		Type("json").

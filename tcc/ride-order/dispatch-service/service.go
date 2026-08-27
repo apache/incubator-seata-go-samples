@@ -60,11 +60,15 @@ func (s *DispatchService) Prepare(ctx context.Context, params interface{}) (bool
 	if err != nil {
 		return false, fmt.Errorf("no available driver: %v", err)
 	}
-	_, err = common.DB.ExecContext(ctx,
+	// Guard against a concurrent transaction grabbing the same driver.
+	result, err := common.DB.ExecContext(ctx,
 		"UPDATE drivers SET status=1, reserved_order_id=? WHERE id=? AND status=0",
 		req.OrderID, driverID)
 	if err != nil {
 		return false, fmt.Errorf("dispatch prepare failed: %v", err)
+	}
+	if rows, _ := result.RowsAffected(); rows == 0 {
+		return false, fmt.Errorf("driver %d no longer available", driverID)
 	}
 	xid := tm.GetXID(ctx)
 	dispatchRecords.Store(xid, driverID)
