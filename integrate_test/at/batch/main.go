@@ -83,7 +83,6 @@ func mysqlDSN() string {
 	config.Addr = net.JoinHostPort(envOrDefault("MYSQL_HOST", "127.0.0.1"), envOrDefault("MYSQL_PORT", "3306"))
 	config.DBName = envOrDefault("MYSQL_DB", "seata_client")
 	config.InterpolateParams = true
-	config.MultiStatements = true
 	return config.FormatDSN()
 }
 

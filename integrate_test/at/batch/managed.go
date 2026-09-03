@@ -30,6 +30,11 @@ import (
 	"seata.apache.org/seata-go/v2/pkg/tm"
 )
 
+var (
+	errRowsMismatch         = errors.New("rows do not match expected state")
+	errUndoLogCountMismatch = errors.New("undo log count does not match expected state")
+)
+
 var managedSuccessIDs = [3]int64{91001, 91002, 91003}
 
 var managedSuccessBaseline = []orderRow{
@@ -272,7 +277,7 @@ func assertRows(ctx context.Context, queryer rowQueryer, ids [3]int64, expected 
 		return err
 	}
 	if !reflect.DeepEqual(actual, expected) {
-		return fmt.Errorf("expected rows %+v, got %+v", expected, actual)
+		return fmt.Errorf("%w: expected rows %+v, got %+v", errRowsMismatch, expected, actual)
 	}
 	return nil
 }
@@ -283,7 +288,7 @@ func (s batchSuite) assertUndoLogCount(ctx context.Context, xid string, expected
 		return err
 	}
 	if count != expected {
-		return fmt.Errorf("expected %d undo-log rows for xid %s, got %d", expected, xid, count)
+		return fmt.Errorf("%w: expected %d undo-log rows for xid %s, got %d", errUndoLogCountMismatch, expected, xid, count)
 	}
 	return nil
 }
@@ -294,15 +299,21 @@ func (s batchSuite) waitForUndoLogCleanup(ctx context.Context, xid string) error
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 
+	var lastErr error
 	for {
-		if err := s.assertUndoLogCount(ctx, xid, 0); err == nil {
+		err := s.assertUndoLogCount(ctx, xid, 0)
+		if err == nil {
 			return nil
 		}
+		if !errors.Is(err, errUndoLogCountMismatch) {
+			return err
+		}
+		lastErr = err
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-deadline.C:
-			return fmt.Errorf("undo log for xid %s was not cleaned within %s", xid, pollTimeout)
+			return fmt.Errorf("undo log for xid %s was not cleaned within %s: %w", xid, pollTimeout, lastErr)
 		case <-ticker.C:
 		}
 	}

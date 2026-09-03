@@ -112,10 +112,14 @@ func waitForRows(ctx context.Context, queryer rowQueryer, ids [3]int64, expected
 
 	var lastErr error
 	for {
-		lastErr = assertRows(ctx, queryer, ids, expected)
-		if lastErr == nil {
+		err := assertRows(ctx, queryer, ids, expected)
+		if err == nil {
 			return nil
 		}
+		if !errors.Is(err, errRowsMismatch) {
+			return err
+		}
+		lastErr = err
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
