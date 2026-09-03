@@ -19,6 +19,7 @@
 array+=("integrate_test/at/insert")
 array+=("integrate_test/at/insert_on_update")
 array+=("integrate_test/at/select_for_update")
+array+=("integrate_test/at/batch")
 
 array+=("integrate_test/tcc/insert")
 array+=("integrate_test/tcc/insert_on_update")
