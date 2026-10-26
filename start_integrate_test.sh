@@ -25,6 +25,10 @@ array+=("integrate_test/tcc/insert")
 array+=("integrate_test/tcc/insert_on_update")
 array+=("integrate_test/tcc/select_on_update")
 
+array+=("integrate_test/xa/insert")
+array+=("integrate_test/xa/insert_on_update")
+array+=("integrate_test/xa/select_for_update")
+
 
 DOCKER_DIR=$(pwd)/dockercompose
 docker-compose -f $DOCKER_DIR/docker-compose.yml up -d
