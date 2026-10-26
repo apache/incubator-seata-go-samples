@@ -22,10 +22,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net"
+	"os"
 	"time"
 
-	"seata.apache.org/seata-go-samples/util"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 	"seata.apache.org/seata-go/v2/pkg/client"
+	seataSQL "seata.apache.org/seata-go/v2/pkg/datasource/sql"
 	"seata.apache.org/seata-go/v2/pkg/tm"
 )
 
@@ -33,7 +36,12 @@ var db *sql.DB
 
 func main() {
 	client.InitPath("./conf/seatago.yml")
-	db = util.GetXAMySqlDb()
+	var err error
+	db, err = sql.Open(seataSQL.SeataXAMySQLDriver, mysqlDSN())
+	if err != nil {
+		panic(fmt.Sprintf("open database failed: %v", err))
+	}
+	defer db.Close()
 
 	contextInstance := context.Background()
 
@@ -117,4 +125,30 @@ func runRollbackTest(ctx context.Context, userId string) {
 
 func cleanupTestData(ctx context.Context, userId string) {
 	_, _ = db.ExecContext(ctx, "DELETE FROM order_tbl WHERE user_id = ?", userId)
+}
+
+func mysqlDSN() string {
+	if dsn := os.Getenv("MYSQL_DSN"); dsn != "" {
+		return dsn
+	}
+	password := os.Getenv("MYSQL_PASSWORD")
+	if password == "" {
+		password = envOrDefault("MYSQL_ROOT_PASSWORD", "12345678")
+	}
+	config := mysqlDriver.NewConfig()
+	config.User = envOrDefault("MYSQL_USERNAME", "root")
+	config.Passwd = password
+	config.Net = "tcp"
+	config.Addr = net.JoinHostPort(envOrDefault("MYSQL_HOST", "127.0.0.1"), envOrDefault("MYSQL_PORT", "3306"))
+	config.DBName = envOrDefault("MYSQL_DB", "seata_client")
+	config.InterpolateParams = true
+	config.MultiStatements = true
+	return config.FormatDSN()
+}
+
+func envOrDefault(name, fallback string) string {
+	if value := os.Getenv(name); value != "" {
+		return value
+	}
+	return fallback
 }
