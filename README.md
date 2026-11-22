@@ -57,6 +57,10 @@ System Env Supported:
 4. MYSQL_PASSWORD
 5. MYSQL_DB
 
+### PostgreSQL
+
+For AT mode with PostgreSQL, see [at/postgresql](at/postgresql/README.md).
+
 ## How to use go mod replace to test samples for new PR
 
 1. Modify the seata-go dependency version to v0.0.0-incompatible, and remove the version number if it exists in the
