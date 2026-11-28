@@ -146,12 +146,12 @@ func contains(rows []stRow, pred func(stRow) bool) bool {
 func validateStatesSuccess(rows []stRow) error {
 	var errs []string
 	if !contains(rows, func(r stRow) bool {
-		return r.Name == "ReduceInventory" && r.Status == "SU" && !(r.CompFor.Valid && r.CompFor.String != "")
+		return r.Name == "ReduceInventory" && r.Status == "SU" && (!r.CompFor.Valid || r.CompFor.String == "")
 	}) {
 		errs = append(errs, "missing SU ReduceInventory forward state")
 	}
 	if !contains(rows, func(r stRow) bool {
-		return r.Name == "ReduceBalance" && r.Status == "SU" && !(r.CompFor.Valid && r.CompFor.String != "")
+		return r.Name == "ReduceBalance" && r.Status == "SU" && (!r.CompFor.Valid || r.CompFor.String == "")
 	}) {
 		errs = append(errs, "missing SU ReduceBalance forward state")
 	}
@@ -169,12 +169,12 @@ func validateStatesSuccess(rows []stRow) error {
 func validateStatesCompBalance(rows []stRow) error {
 	var errs []string
 	if !contains(rows, func(r stRow) bool {
-		return r.Name == "ReduceInventory" && r.Status == "SU" && !(r.CompFor.Valid && r.CompFor.String != "")
+		return r.Name == "ReduceInventory" && r.Status == "SU" && (!r.CompFor.Valid || r.CompFor.String == "")
 	}) {
 		errs = append(errs, "missing SU ReduceInventory forward state")
 	}
 	if !contains(rows, func(r stRow) bool {
-		return r.Name == "ReduceBalance" && r.Status == "FA" && !(r.CompFor.Valid && r.CompFor.String != "")
+		return r.Name == "ReduceBalance" && r.Status == "FA" && (!r.CompFor.Valid || r.CompFor.String == "")
 	}) {
 		errs = append(errs, "missing FA ReduceBalance forward state")
 	}
@@ -198,7 +198,7 @@ func validateStatesCompBalance(rows []stRow) error {
 func validateStatesCompInventory(rows []stRow) error {
 	var errs []string
 	if !contains(rows, func(r stRow) bool {
-		return r.Name == "ReduceInventory" && r.Status == "FA" && !(r.CompFor.Valid && r.CompFor.String != "")
+		return r.Name == "ReduceInventory" && r.Status == "FA" && (!r.CompFor.Valid || r.CompFor.String == "")
 	}) {
 		errs = append(errs, "missing FA ReduceInventory forward state")
 	}

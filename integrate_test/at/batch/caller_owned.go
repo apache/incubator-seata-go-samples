@@ -35,7 +35,7 @@ var callerOwnedBaseline = []orderRow{
 	{ID: 93003, UserID: "batch-caller-3", CommodityCode: "batch", Count: 30, Money: 300, Descs: "caller baseline 3"},
 }
 
-var triggerGlobalRollback = errors.New("trigger expected global rollback")
+var errTriggerGlobalRollback = errors.New("trigger expected global rollback")
 
 func (s batchSuite) runCallerOwnedGlobalRollback(ctx context.Context) error {
 	if err := s.restoreFixture(ctx, callerOwnedIDs, callerOwnedBaseline); err != nil {
@@ -86,12 +86,12 @@ func (s batchSuite) runCallerOwnedGlobalRollback(ctx context.Context) error {
 		if err := s.assertUndoLogCount(txCtx, xid, 1); err != nil {
 			return fmt.Errorf("verify single branch undo log: %w", err)
 		}
-		return triggerGlobalRollback
+		return errTriggerGlobalRollback
 	})
 	if globalErr == nil {
 		return fmt.Errorf("expected global rollback trigger error")
 	}
-	if !errors.Is(globalErr, triggerGlobalRollback) {
+	if !errors.Is(globalErr, errTriggerGlobalRollback) {
 		return fmt.Errorf("global rollback failed: %w", globalErr)
 	}
 
