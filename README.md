@@ -17,12 +17,15 @@
 
 # seata-go-samples
 
+This repository contains Go transaction examples for [Apache Seata (incubating)](https://seata.apache.org/). See the [incubation disclaimer](DISCLAIMER).
+
 ## How to run samples
 
-1. Start the seata-server service with the docker file under the /dockercomposer folder
+1. Start the seata-server service with the docker file under the `dockercompose` directory
 
    ```shell
-   git clone https://seata.apache.org/seata-go-samples.git
+   git clone https://github.com/apache/incubator-seata-go-samples.git
+   cd incubator-seata-go-samples
    ```
 
    ```shell
@@ -36,7 +39,7 @@
 2. Start and run a sample, for example let's run a basic distributed transaction sample of AT
 
    ```shell
-   cd at/basic
+   cd ../at/basic
    ```
 
    ```shell

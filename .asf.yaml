@@ -16,7 +16,7 @@
 #
 
 github:
-  description: "Samples for seata-go"
+  description: "Go samples for Apache Seata (incubating)"
   homepage: https://seata.apache.org/
   enabled_merge_buttons:
     squash:  true
