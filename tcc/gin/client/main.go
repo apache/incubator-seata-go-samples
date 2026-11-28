@@ -55,6 +55,6 @@ func main() {
 			return
 		})
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 }

@@ -45,13 +45,13 @@ func main() {
 
 	proxy1, err := tcc.NewTCCServiceProxy(b1)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 		return
 	}
 
 	proxy2, err := tcc.NewTCCServiceProxy(b2)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 		return
 	}
 

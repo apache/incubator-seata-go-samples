@@ -21,7 +21,7 @@
 
 ## 一键运行（推荐）
 
-前置条件：本机需安装 Go 1.20+、Docker 与 docker-compose。
+前置条件：本机需安装 Go 1.25+、Docker 与 docker-compose。
 
 使用 docker‑compose 重建/启动 MySQL 与 Seata Server，等待就绪后依次运行 3 个场景并进行 DB 校验：
 
@@ -47,7 +47,7 @@ go mod tidy # 依赖有变更时执行
 go mod edit -dropreplace seata.apache.org/seata-go
 ```
 
-如果使用 Go 1.18+，也可以临时创建 workspace：
+也可以临时创建 workspace：
 
 ```
 go work init

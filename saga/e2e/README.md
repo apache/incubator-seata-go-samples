@@ -29,7 +29,7 @@ This example demonstrates a Java‑aligned Seata SAGA flow in Go, with MySQL per
 
 ## Quick start (one‑click)
 
-Prerequisites: Go 1.20+, Docker, and docker-compose available on the host.
+Prerequisites: Go 1.25+, Docker, and docker-compose available on the host.
 
 ```
 saga/e2e/run_all.sh --up \
@@ -54,7 +54,7 @@ After the test run, drop the replace so the module file stays clean:
 go mod edit -dropreplace seata.apache.org/seata-go
 ```
 
-When using Go 1.18+, you can alternatively create a temporary workspace:
+You can alternatively create a temporary workspace:
 
 ```
 go work init
